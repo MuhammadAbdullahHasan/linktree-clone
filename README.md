@@ -23,11 +23,13 @@ browser view of the tables.
 Vercel can't keep a database file, so the online copy uses [Turso](https://turso.tech), which hosts the
 same kind of SQLite database (free tier).
 
-1. Create a Turso database and copy its URL (`libsql://...`) and an auth token.
-2. Create the tables in it:
-   `DATABASE_URL=libsql://... DATABASE_AUTH_TOKEN=... npm run db:migrate`
-3. Import the GitHub repo in Vercel and set these environment variables:
-   `DATABASE_URL`, `DATABASE_AUTH_TOKEN`, `INVITE_CODE`, and `NEXT_PUBLIC_SITE_URL` (your Vercel address).
+1. Import this GitHub repo as a new project in Vercel.
+2. In the project, open **Storage → Create Database → Turso** and connect it. That sets
+   `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` for you.
+3. Add an `INVITE_CODE` environment variable, then redeploy.
+
+Each deploy creates or updates the tables (`vercel-build` runs `drizzle-kit migrate` first). The site
+address is detected automatically; set `NEXT_PUBLIC_SITE_URL` only if you add a custom domain.
 
 ## How accounts and security work
 
