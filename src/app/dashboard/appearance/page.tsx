@@ -8,16 +8,15 @@ export default async function AppearancePage() {
   const { profile, links, socials } = await getDashboardData();
   return (
     <AppearanceEditor
-      userId={profile.id}
       username={profile.username}
       initialProfile={{
-        displayName: profile.display_name ?? "",
+        displayName: profile.displayName ?? "",
         bio: profile.bio ?? "",
-        avatarUrl: profile.avatar_url,
+        avatarUrl: profile.avatarUrl,
       }}
       initialTheme={resolveTheme(profile.theme)}
       initialSocials={socials}
-      links={links.filter((l) => l.is_active)}
+      links={links.filter((l) => l.isActive)}
     />
   );
 }

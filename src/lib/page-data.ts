@@ -1,18 +1,18 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { linksOf, profileByUsername, socialsOf } from "@/lib/profile-query";
 import { resolveTheme } from "@/lib/themes";
 import type { PageData, Profile } from "@/lib/types";
 
 export function toPageData(
-  profile: Pick<Profile, "username" | "display_name" | "bio" | "avatar_url" | "theme">,
+  profile: Pick<Profile, "username" | "displayName" | "bio" | "avatarUrl" | "theme">,
   links: PageData["links"],
   socials: PageData["socials"],
 ): PageData {
   return {
     username: profile.username ?? "",
-    displayName: profile.display_name,
+    displayName: profile.displayName,
     bio: profile.bio,
-    avatarUrl: profile.avatar_url,
+    avatarUrl: profile.avatarUrl,
     theme: resolveTheme(profile.theme),
     links,
     socials,
@@ -20,30 +20,17 @@ export function toPageData(
 }
 
 /** Public page data for a username, or null if nobody has claimed it. */
-export const getPublicPage = cache(async (username: string): Promise<PageData | null> => {
-  const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, username, display_name, bio, avatar_url, theme")
-    .eq("username", username.toLowerCase())
-    .maybeSingle();
+export const getPublicPage = cache(async (username: string) => {
+  const profile = await profileByUsername(username);
   if (!profile) return null;
 
-  const [{ data: links }, { data: socials }] = await Promise.all([
-    supabase
-      .from("links")
-      .select("id, title, url")
-      .eq("user_id", profile.id)
-      .eq("is_active", true)
-      .order("position")
-      .order("created_at"),
-    supabase
-      .from("social_links")
-      .select("id, platform, url")
-      .eq("user_id", profile.id)
-      .order("position")
-      .order("created_at"),
-  ]);
-
-  return toPageData(profile, links ?? [], socials ?? []);
+  const [links, socials] = await Promise.all([linksOf(profile.id), socialsOf(profile.id)]);
+  return {
+    profileId: profile.id,
+    page: toPageData(
+      profile,
+      links.filter((l) => l.isActive).map(({ id, title, url }) => ({ id, title, url })),
+      socials.map(({ id, platform, url }) => ({ id, platform, url })),
+    ),
+  };
 });

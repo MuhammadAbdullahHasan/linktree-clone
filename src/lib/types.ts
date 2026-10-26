@@ -3,9 +3,9 @@ import type { Theme } from "./themes";
 export type Profile = {
   id: string;
   username: string | null;
-  display_name: string | null;
+  displayName: string | null;
   bio: string | null;
-  avatar_url: string | null;
+  avatarUrl: string | null;
   theme: unknown;
 };
 
@@ -14,7 +14,7 @@ export type Link = {
   title: string;
   url: string;
   position: number;
-  is_active: boolean;
+  isActive: boolean;
 };
 
 export type SocialLink = {

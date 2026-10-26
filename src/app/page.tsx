@@ -2,7 +2,7 @@ import Link from "next/link";
 import ClaimUsername from "@/components/ClaimUsername";
 import ProfilePage from "@/components/ProfilePage";
 import { APP_NAME } from "@/lib/config";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
 import { THEME_PRESETS } from "@/lib/themes";
 import type { PageData } from "@/lib/types";
 
@@ -31,10 +31,7 @@ const FEATURES = [
 ];
 
 export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   return (
     <div className="min-h-dvh">

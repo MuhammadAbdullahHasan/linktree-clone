@@ -52,7 +52,7 @@ export default function LinksManager({ initialLinks, page }: Props) {
     }
   }
 
-  async function onUpdate(id: string, patch: { title?: string; url?: string; is_active?: boolean }) {
+  async function onUpdate(id: string, patch: { title?: string; url?: string; isActive?: boolean }) {
     setError(null);
     const previous = links;
     setLinks((ls) => ls.map((l) => (l.id === id ? { ...l, ...patch } : l)));
@@ -80,7 +80,7 @@ export default function LinksManager({ initialLinks, page }: Props) {
 
   const preview: PageData = {
     ...page,
-    links: links.filter((l) => l.is_active && l.title && l.url),
+    links: links.filter((l) => l.isActive && l.title && l.url),
   };
 
   return (
@@ -200,7 +200,7 @@ function AddLinkForm({ onAdded }: { onAdded: (link: Link) => void }) {
 
 type CardProps = {
   link: Link;
-  onUpdate: (id: string, patch: { title?: string; url?: string; is_active?: boolean }) => Promise<Link | null>;
+  onUpdate: (id: string, patch: { title?: string; url?: string; isActive?: boolean }) => Promise<Link | null>;
   onDelete: (id: string) => void;
 };
 
@@ -222,7 +222,7 @@ function LinkCard({ link, onUpdate, onDelete }: CardProps) {
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`card flex items-stretch gap-2 p-3 ${isDragging ? "relative z-10 shadow-xl" : ""} ${
-        link.is_active ? "" : "opacity-60"
+        link.isActive ? "" : "opacity-60"
       }`}
     >
       <button
@@ -259,9 +259,9 @@ function LinkCard({ link, onUpdate, onDelete }: CardProps) {
 
       <div className="flex flex-col items-end justify-between gap-2">
         <Toggle
-          checked={link.is_active}
-          label={link.is_active ? "Visible" : "Hidden"}
-          onChange={(v) => onUpdate(link.id, { is_active: v })}
+          checked={link.isActive}
+          label={link.isActive ? "Visible" : "Hidden"}
+          onChange={(v) => onUpdate(link.id, { isActive: v })}
         />
         <button
           type="button"

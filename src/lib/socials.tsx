@@ -11,7 +11,6 @@ export type SocialPlatform = {
   placeholder: string;
 };
 
-// Keep ids in sync with the social_links.platform check in the migration.
 export const SOCIAL_PLATFORMS: SocialPlatform[] = [
   { id: "instagram", label: "Instagram", icon: FaInstagram, placeholder: "instagram.com/yourname" },
   { id: "tiktok", label: "TikTok", icon: FaTiktok, placeholder: "tiktok.com/@yourname" },

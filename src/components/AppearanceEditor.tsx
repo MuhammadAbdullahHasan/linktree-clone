@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { FaCamera, FaTrash } from "react-icons/fa6";
-import { deleteSocial, saveSocial, updateProfile, updateTheme } from "@/app/dashboard/actions";
+import { deleteSocial, removeAvatar, saveSocial, updateProfile, updateTheme, uploadAvatar } from "@/app/dashboard/actions";
 import PhonePreview from "@/components/PhonePreview";
 import { SOCIAL_PLATFORMS, SOCIALS_BY_ID } from "@/lib/socials";
-import { createClient } from "@/lib/supabase/client";
 import { FONTS, THEME_PRESETS, type Theme } from "@/lib/themes";
 import type { Link, PageData, SocialLink } from "@/lib/types";
 import { useAutosave, type SaveStatus } from "@/lib/use-autosave";
@@ -13,7 +12,6 @@ import { useAutosave, type SaveStatus } from "@/lib/use-autosave";
 type ProfileFields = { displayName: string; bio: string; avatarUrl: string | null };
 
 type Props = {
-  userId: string;
   username: string;
   initialProfile: ProfileFields;
   initialTheme: Theme;
@@ -26,8 +24,12 @@ export default function AppearanceEditor(props: Props) {
   const [theme, setTheme] = useState(props.initialTheme);
   const [socials, setSocials] = useState(props.initialSocials);
 
-  const profileSave = useAutosave(profile, (p) =>
-    updateProfile({ display_name: p.displayName, bio: p.bio }),
+  const profileText = useMemo(
+    () => ({ displayName: profile.displayName, bio: profile.bio }),
+    [profile.displayName, profile.bio],
+  );
+  const profileSave = useAutosave(profileText, (p) =>
+    updateProfile({ displayName: p.displayName, bio: p.bio }),
   );
   const themeSave = useAutosave(theme, updateTheme);
 
@@ -48,7 +50,6 @@ export default function AppearanceEditor(props: Props) {
 
         <Section title="Profile" status={profileSave.status} error={profileSave.error}>
           <AvatarPicker
-            userId={props.userId}
             url={profile.avatarUrl}
             fallback={(profile.displayName || props.username).charAt(0).toUpperCase()}
             onChange={(avatarUrl) => setProfile((p) => ({ ...p, avatarUrl }))}
@@ -247,13 +248,35 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   );
 }
 
+/** Crops to a centered square and scales down to 400px, so uploads stay small. */
+async function resizeImage(file: File, size = 400): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const side = Math.min(bitmap.width, bitmap.height);
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = Math.min(size, side);
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(
+    bitmap,
+    (bitmap.width - side) / 2,
+    (bitmap.height - side) / 2,
+    side,
+    side,
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+  );
+  bitmap.close();
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("encode failed"))), "image/webp", 0.85),
+  );
+}
+
 function AvatarPicker({
-  userId,
   url,
   fallback,
   onChange,
 }: {
-  userId: string;
   url: string | null;
   fallback: string;
   onChange: (url: string | null) => void;
@@ -265,30 +288,26 @@ function AvatarPicker({
   async function upload(file: File) {
     setError(null);
     if (!file.type.startsWith("image/")) return setError("Choose an image file");
-    if (file.size > 2 * 1024 * 1024) return setError("Image must be under 2 MB");
+    if (file.size > 15 * 1024 * 1024) return setError("Image must be under 15 MB");
 
     setBusy(true);
-    const supabase = createClient();
-    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-    const path = `${userId}/${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
-      cacheControl: "31536000",
-      contentType: file.type,
-    });
-    if (uploadError) {
+    try {
+      const blob = await resizeImage(file);
+      const form = new FormData();
+      form.append("avatar", new File([blob], "avatar", { type: blob.type }));
+      const result = await uploadAvatar(form);
+      if (!result.ok) setError(result.error);
+      else onChange(result.data);
+    } catch {
+      setError("Couldn't read that image. Try a PNG or JPG.");
+    } finally {
       setBusy(false);
-      return setError("Upload failed. Try a PNG, JPG, WebP or GIF under 2 MB.");
     }
-    const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
-    const result = await updateProfile({ avatar_url: publicUrl });
-    setBusy(false);
-    if (!result.ok) return setError(result.error);
-    onChange(publicUrl);
   }
 
   async function remove() {
     setBusy(true);
-    const result = await updateProfile({ avatar_url: null });
+    const result = await removeAvatar();
     setBusy(false);
     if (!result.ok) return setError(result.error);
     onChange(null);
@@ -317,7 +336,7 @@ function AvatarPicker({
       <input
         ref={input}
         type="file"
-        accept="image/png,image/jpeg,image/webp,image/gif"
+        accept="image/*"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];

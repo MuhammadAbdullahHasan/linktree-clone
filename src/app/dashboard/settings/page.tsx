@@ -1,3 +1,4 @@
+import { signOut } from "@/app/(auth)/actions";
 import UsernameForm from "@/components/UsernameForm";
 import { getDashboardData } from "@/lib/dashboard-data";
 
@@ -23,7 +24,7 @@ export default async function SettingsPage() {
         <p className="mt-1 text-sm text-neutral-600">
           Signed in as <strong className="text-neutral-900">{email}</strong>
         </p>
-        <form action="/auth/signout" method="post" className="mt-5">
+        <form action={signOut} className="mt-5">
           <button type="submit" className="btn-secondary">Sign out</button>
         </form>
       </section>

@@ -1,37 +1,27 @@
 import Link from "next/link";
 import ActivityChart from "@/components/ActivityChart";
+import { clicksPerLink, dailyActivity } from "@/lib/analytics";
 import { getDashboardData } from "@/lib/dashboard-data";
-import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Analytics" };
 
 const RANGES = [7, 30, 90] as const;
 
 export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
-  const { links } = await getDashboardData();
+  const { profile, links } = await getDashboardData();
   const requested = Number((await searchParams).days);
   const days = RANGES.find((r) => r === requested) ?? 7;
 
-  const supabase = await createClient();
-  const [{ data: daily }, { data: perLink }] = await Promise.all([
-    supabase.rpc("analytics_daily", { p_days: days }),
-    supabase.rpc("analytics_links", { p_days: days }),
+  const [series, clicksByLink] = await Promise.all([
+    dailyActivity(profile.id, days),
+    clicksPerLink(profile.id, days),
   ]);
-
-  const series = ((daily ?? []) as { day: string; views: number; clicks: number }[]).map((d) => ({
-    day: d.day,
-    views: Number(d.views),
-    clicks: Number(d.clicks),
-  }));
   const views = series.reduce((sum, d) => sum + d.views, 0);
   const clicks = series.reduce((sum, d) => sum + d.clicks, 0);
   const ctr = views > 0 ? `${((clicks / views) * 100).toFixed(1)}%` : "–";
 
-  const clicksByLink = new Map(
-    ((perLink ?? []) as { link_id: string; clicks: number }[]).map((r) => [r.link_id, Number(r.clicks)]),
-  );
   const linkRows = links
-    .map((l) => ({ id: l.id, title: l.title, active: l.is_active, clicks: clicksByLink.get(l.id) ?? 0 }))
+    .map((l) => ({ id: l.id, title: l.title, active: l.isActive, clicks: clicksByLink.get(l.id) ?? 0 }))
     .sort((a, b) => b.clicks - a.clicks);
   const deletedClicks = [...clicksByLink.entries()]
     .filter(([id]) => !links.some((l) => l.id === id))

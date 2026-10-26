@@ -3,76 +3,35 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { signIn, signUp } from "@/app/(auth)/actions";
 
-export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
+type Props = { mode: "login" | "signup"; inviteRequired: boolean };
+
+export default function AuthForm({ mode, inviteRequired }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(
-    searchParams.get("error") ? "That sign-in link didn't work. Please try again." : null,
-  );
-  const [notice, setNotice] = useState<string | null>(null);
+  const [inviteCode, setInviteCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const claimed = searchParams.get("username");
   const afterSignup = claimed ? `/onboarding?username=${encodeURIComponent(claimed)}` : "/onboarding";
-  const googleEnabled = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const supabase = createClient();
-
-    if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-        return;
-      }
-      router.replace("/dashboard");
-      router.refresh();
+    const result =
+      mode === "login" ? await signIn({ email, password }) : await signUp({ email, password, inviteCode });
+    if (!result.ok) {
+      setError(result.error);
+      setLoading(false);
       return;
     }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(afterSignup)}`,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    } else if (data.session) {
-      router.replace(afterSignup);
-      router.refresh();
-    } else {
-      setNotice(`We sent a confirmation link to ${email}. Open it to finish signing up.`);
-    }
-  }
-
-  async function onGoogle() {
-    const supabase = createClient();
-    const next = mode === "signup" ? afterSignup : "/dashboard";
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
-    });
-    if (error) setError(error.message);
-  }
-
-  if (notice) {
-    return (
-      <div className="card p-6 text-center">
-        <h1 className="text-xl font-bold">Check your inbox</h1>
-        <p className="mt-2 text-sm text-neutral-600">{notice}</p>
-      </div>
-    );
+    router.replace(mode === "login" ? "/dashboard" : afterSignup);
+    router.refresh();
   }
 
   return (
@@ -85,7 +44,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           ? "Log in to manage your links."
           : claimed
             ? `Sign up to claim @${claimed}.`
-            : "Free forever. Set up in under a minute."}
+            : "Set up your page in under a minute."}
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
@@ -108,6 +67,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             type="password"
             required
             minLength={mode === "signup" ? 8 : undefined}
+            maxLength={200}
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             className="input"
             value={password}
@@ -115,6 +75,19 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           />
           {mode === "signup" && <p className="mt-1.5 text-xs text-neutral-500">At least 8 characters.</p>}
         </div>
+        {mode === "signup" && inviteRequired && (
+          <div>
+            <label htmlFor="invite" className="label">Invite code</label>
+            <input
+              id="invite"
+              required
+              autoComplete="off"
+              className="input"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+            />
+          </div>
+        )}
 
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
@@ -122,17 +95,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {loading ? "Please wait…" : mode === "login" ? "Log in" : "Create account"}
         </button>
       </form>
-
-      {googleEnabled && (
-        <>
-          <div className="my-6 flex items-center gap-3 text-xs text-neutral-400">
-            <span className="h-px flex-1 bg-neutral-200" /> OR <span className="h-px flex-1 bg-neutral-200" />
-          </div>
-          <button type="button" onClick={onGoogle} className="btn-secondary w-full py-3">
-            Continue with Google
-          </button>
-        </>
-      )}
 
       <p className="mt-8 text-center text-sm text-neutral-600">
         {mode === "login" ? (

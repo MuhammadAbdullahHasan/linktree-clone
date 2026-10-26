@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { recordView } from "@/lib/analytics";
+import { profileByUsername } from "@/lib/profile-query";
 
 export async function POST(request: NextRequest) {
   let body: { username?: unknown; referrer?: unknown };
@@ -12,10 +13,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse(null, { status: 400 });
   }
 
-  const supabase = await createClient();
-  await supabase.rpc("record_view", {
-    p_username: body.username,
-    p_referrer: typeof body.referrer === "string" ? body.referrer : null,
-  });
+  const profile = await profileByUsername(body.username);
+  if (profile) await recordView(profile.id, typeof body.referrer === "string" ? body.referrer : null);
   return new NextResponse(null, { status: 204 });
 }

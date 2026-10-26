@@ -9,7 +9,7 @@ type Params = { params: Promise<{ username: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username } = await params;
-  const page = await getPublicPage(decodeURIComponent(username));
+  const page = (await getPublicPage(decodeURIComponent(username)))?.page;
   if (!page) return { title: `Not found | ${APP_NAME}` };
 
   const title = page.displayName ? `${page.displayName} (@${page.username})` : `@${page.username}`;
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function UsernamePage({ params }: Params) {
   const { username } = await params;
-  const page = await getPublicPage(decodeURIComponent(username));
+  const page = (await getPublicPage(decodeURIComponent(username)))?.page;
   if (!page) notFound();
 
   return (

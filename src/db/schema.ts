@@ -1,0 +1,109 @@
+import { sql } from "drizzle-orm";
+import { blob, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+
+const id = () =>
+  text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID());
+const createdAt = () =>
+  integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`);
+
+export const users = sqliteTable("users", {
+  id: id(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  createdAt: createdAt(),
+});
+
+/** Stores a SHA-256 of the session token, never the token itself. */
+export const sessions = sqliteTable(
+  "sessions",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("sessions_user_idx").on(t.userId)],
+);
+
+/** Failed sign-in attempts, for rate limiting. */
+export const loginAttempts = sqliteTable(
+  "login_attempts",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    key: text("key").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("login_attempts_key_idx").on(t.key, t.createdAt)],
+);
+
+export const profiles = sqliteTable("profiles", {
+  id: text("id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  username: text("username").unique(),
+  displayName: text("display_name"),
+  bio: text("bio"),
+  avatar: blob("avatar", { mode: "buffer" }),
+  avatarType: text("avatar_type"),
+  avatarVersion: integer("avatar_version").notNull().default(0),
+  theme: text("theme", { mode: "json" }).notNull().default({}),
+  createdAt: createdAt(),
+});
+
+export const links = sqliteTable(
+  "links",
+  {
+    id: id(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    position: integer("position").notNull().default(0),
+    isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+    createdAt: createdAt(),
+  },
+  (t) => [index("links_user_position_idx").on(t.userId, t.position)],
+);
+
+export const socialLinks = sqliteTable(
+  "social_links",
+  {
+    id: id(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    platform: text("platform").notNull(),
+    url: text("url").notNull(),
+    position: integer("position").notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("social_links_user_platform_idx").on(t.userId, t.platform),
+    index("social_links_user_position_idx").on(t.userId, t.position),
+  ],
+);
+
+export const events = sqliteTable(
+  "events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    // No foreign key: clicks on deleted links still count in analytics.
+    linkId: text("link_id"),
+    type: text("type", { enum: ["view", "click"] }).notNull(),
+    referrer: text("referrer"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("events_profile_created_idx").on(t.profileId, t.createdAt),
+    index("events_link_idx").on(t.linkId),
+  ],
+);

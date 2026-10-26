@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Keep in sync with the username_not_reserved constraint in supabase/migrations/0001_init.sql.
+// Top-level routes and other names nobody should be able to claim.
 export const RESERVED_USERNAMES = new Set([
   "admin", "api", "app", "auth", "dashboard", "go", "help", "login", "logout",
   "onboarding", "privacy", "settings", "signin", "signout", "signup", "static",

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import UsernameForm from "@/components/UsernameForm";
 import { APP_NAME } from "@/lib/config";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/dashboard-data";
+import { profileById } from "@/lib/profile-query";
 
 export const metadata = { title: "Choose your username" };
 
@@ -10,13 +11,8 @@ export default async function OnboardingPage({
 }: {
   searchParams: Promise<{ username?: string }>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase.from("profiles").select("username").eq("id", user.id).single();
+  const user = await requireUser();
+  const profile = await profileById(user.id);
   if (profile?.username) redirect("/dashboard");
 
   const { username } = await searchParams;

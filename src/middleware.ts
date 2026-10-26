@@ -1,11 +1,14 @@
-import type { NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { NextResponse, type NextRequest } from "next/server";
+import { SESSION_COOKIE } from "@/lib/auth-cookie";
 
-export async function middleware(request: NextRequest) {
-  return updateSession(request);
+// Fast redirect when there's no session cookie at all. Pages still verify the session against the database.
+export function middleware(request: NextRequest) {
+  if (!request.cookies.has(SESSION_COOKIE)) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  return NextResponse.next();
 }
 
 export const config = {
-  // Public profile pages and click redirects don't need a session refresh.
-  matcher: ["/dashboard/:path*", "/onboarding", "/login", "/signup", "/auth/:path*"],
+  matcher: ["/dashboard/:path*", "/onboarding"],
 };
