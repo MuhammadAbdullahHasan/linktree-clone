@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Linkfolio
 
-## Getting Started
+A Linktree-style "link in bio" app. Anyone can sign up, claim `yoursite.com/username`, add links and social
+icons, style their page, and see views and clicks.
 
-First, run the development server:
+Built with Next.js 15 (App Router, TypeScript), Tailwind CSS v4 and Supabase (Postgres, Auth, Storage).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Create a Supabase project, then run `supabase/migrations/0001_init.sql` in the SQL editor
+   (or apply it with the Supabase CLI).
+2. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key
+   (Supabase → Project Settings → API).
+3. In Supabase → Authentication → URL Configuration, set the Site URL to your site and add
+   `http://localhost:3000/auth/callback` (plus your production `/auth/callback`) to Redirect URLs.
+4. `npm install` then `npm run dev`, and open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Optional: enable Google under Authentication → Providers, then set `NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=true`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things live
 
-## Learn More
+| Path | What it is |
+| --- | --- |
+| `src/app/[username]` | Public profile page |
+| `src/app/go/[linkId]` | Counts a click, then redirects to the link |
+| `src/app/dashboard` | Links editor, Appearance, Analytics, Settings, and all server actions (`actions.ts`) |
+| `src/components/ProfilePage.tsx` | Renders a profile; shared by the public page and the live preview |
+| `src/lib/themes.ts` | Theme presets and the theme schema |
+| `src/lib/socials.tsx` | Supported social platforms |
+| `src/lib/config.ts` | App name and site URL |
+| `supabase/migrations` | Database schema, row-level security, analytics functions, avatar storage |
 
-To learn more about Next.js, take a look at the following resources:
+## Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Row-level security means users can only change their own data. Analytics events are written only
+  through the `record_view` / `record_click` database functions, and an owner's own visits aren't counted.
+- Links must be `http(s)`, `mailto:` or `tel:`, which is enforced in both the app and the database.
+- Adding a social platform: add it to `src/lib/socials.tsx` and to the `social_links.platform` check in a new migration.
