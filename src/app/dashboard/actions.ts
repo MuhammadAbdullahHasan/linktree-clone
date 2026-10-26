@@ -184,7 +184,9 @@ export async function updateTheme(theme: Theme): Promise<ActionResult> {
 
 export async function saveSocial(platform: string, input: string): Promise<ActionResult<SocialLink>> {
   if (!SOCIALS_BY_ID.has(platform)) return fail("Unknown platform");
-  const url = normalizeUrl(socialInputToUrl(platform, input));
+  const converted = socialInputToUrl(platform, input);
+  if (converted === null) return fail("Enter your WhatsApp number, like 0300 1234567 or +92 300 1234567");
+  const url = normalizeUrl(converted);
   if (!url) return fail(platform === "email" ? "Enter a valid email address" : BAD_URL);
 
   const userId = await requireUserId();

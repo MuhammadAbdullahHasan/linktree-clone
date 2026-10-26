@@ -33,14 +33,41 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
 
 export const SOCIALS_BY_ID = new Map(SOCIAL_PLATFORMS.map((p) => [p.id, p]));
 
-/** Lets people type an email address or phone number instead of a full URL. */
-export function socialInputToUrl(platform: string, input: string): string {
+// Numbers typed in local format (leading 0, e.g. 0300 1234567) get this country code.
+const DEFAULT_COUNTRY_CODE = "92";
+
+/**
+ * Turns a phone number in any common format (+92 300 1234567, 0300 1234567, 0092...)
+ * into the digits-only international form wa.me needs, or null if it can't be valid.
+ */
+export function toWhatsAppNumber(raw: string): string | null {
+  const value = raw.trim();
+  let digits = value.replace(/\D/g, "");
+  if (!value.startsWith("+")) {
+    if (digits.startsWith("00")) digits = digits.slice(2);
+    else if (digits.startsWith("0")) digits = DEFAULT_COUNTRY_CODE + digits.slice(1);
+  }
+  return /^[1-9]\d{7,14}$/.test(digits) ? digits : null;
+}
+
+const WHATSAPP_LINK = /^(?:https?:\/\/)?(?:www\.)?wa\.me\/(\+?[\d\s()-]+)\/?$/i;
+const PHONE = /^\+?[\d\s()-]+$/;
+
+/**
+ * Lets people type an email address or phone number instead of a full URL.
+ * Returns null when a WhatsApp number can't be turned into a working link.
+ */
+export function socialInputToUrl(platform: string, input: string): string | null {
   const value = input.trim();
   if (platform === "email" && !value.startsWith("mailto:") && value.includes("@")) {
     return `mailto:${value}`;
   }
-  if (platform === "whatsapp" && /^\+?[\d\s()-]{7,}$/.test(value)) {
-    return `https://wa.me/${value.replace(/\D/g, "")}`;
+  if (platform === "whatsapp") {
+    const number = value.match(WHATSAPP_LINK)?.[1] ?? (PHONE.test(value) ? value : null);
+    if (number !== null) {
+      const digits = toWhatsAppNumber(number);
+      return digits ? `https://wa.me/${digits}` : null;
+    }
   }
   return value;
 }
