@@ -31,7 +31,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
   return new Response(lines.join("\r\n") + "\r\n", {
     headers: {
       "Content-Type": "text/vcard; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}.vcf"`,
+      // inline: iPhone Safari shows the contact card instead of offering a file download.
+      "Content-Disposition": `inline; filename="${filename}.vcf"`,
       "Cache-Control": "no-store",
     },
   });

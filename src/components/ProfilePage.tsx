@@ -1,8 +1,8 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { APP_NAME } from "@/lib/config";
-import { FaUserPlus } from "react-icons/fa6";
-import { contactPhone, SOCIALS_BY_ID } from "@/lib/socials";
+import SaveContactButton from "@/components/SaveContactButton";
+import { contactEmail, contactPhone, SOCIALS_BY_ID } from "@/lib/socials";
 import { FONTS, type Theme } from "@/lib/themes";
 import type { PageData } from "@/lib/types";
 
@@ -39,6 +39,7 @@ type Props = {
 export default function ProfilePage({ data, preview = false }: Props) {
   const { theme } = data;
   const name = data.displayName || `@${data.username}`;
+  const phone = contactPhone(data.socials);
   const background =
     theme.bgStyle === "gradient" ? `linear-gradient(165deg, ${theme.bg}, ${theme.bg2})` : theme.bg;
 
@@ -97,15 +98,14 @@ export default function ProfilePage({ data, preview = false }: Props) {
           </ul>
         )}
 
-        {contactPhone(data.socials) && (
-          <a
-            href={`/${data.username}/vcard`}
-            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.03] active:scale-[0.98]"
-            style={{ ...buttonStyle(theme), borderRadius: "9999px" }}
-          >
-            <FaUserPlus aria-hidden size={16} />
-            Save contact
-          </a>
+        {phone && (
+          <SaveContactButton
+            username={data.username}
+            name={data.displayName || data.username}
+            phone={phone}
+            email={contactEmail(data.socials)}
+            style={buttonStyle(theme)}
+          />
         )}
 
         <ul className="mt-8 flex w-full flex-col gap-4">
