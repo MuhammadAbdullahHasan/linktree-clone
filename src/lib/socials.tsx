@@ -71,3 +71,17 @@ export function socialInputToUrl(platform: string, input: string): string | null
   }
   return value;
 }
+
+/** The phone number (+digits) from a page's WhatsApp icon, used for "Save contact". */
+export function contactPhone(socials: { platform: string; url: string }[]): string | null {
+  const url = socials.find((s) => s.platform === "whatsapp")?.url ?? "";
+  const digits = url.match(/wa\.me\/\+?(\d+)/i)?.[1];
+  const number = digits ? toWhatsAppNumber(digits) : null;
+  return number ? `+${number}` : null;
+}
+
+/** The email address from a page's Email icon, if any. */
+export function contactEmail(socials: { platform: string; url: string }[]): string | null {
+  const url = socials.find((s) => s.platform === "email")?.url ?? "";
+  return url.startsWith("mailto:") ? decodeURIComponent(url.slice(7).split("?")[0]) : null;
+}

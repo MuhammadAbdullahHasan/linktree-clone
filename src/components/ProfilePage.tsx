@@ -1,7 +1,8 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { APP_NAME } from "@/lib/config";
-import { SOCIALS_BY_ID } from "@/lib/socials";
+import { FaUserPlus } from "react-icons/fa6";
+import { contactPhone, SOCIALS_BY_ID } from "@/lib/socials";
 import { FONTS, type Theme } from "@/lib/themes";
 import type { PageData } from "@/lib/types";
 
@@ -94,6 +95,17 @@ export default function ProfilePage({ data, preview = false }: Props) {
               );
             })}
           </ul>
+        )}
+
+        {contactPhone(data.socials) && (
+          <a
+            href={`/${data.username}/vcard`}
+            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.03] active:scale-[0.98]"
+            style={{ ...buttonStyle(theme), borderRadius: "9999px" }}
+          >
+            <FaUserPlus aria-hidden size={16} />
+            Save contact
+          </a>
         )}
 
         <ul className="mt-8 flex w-full flex-col gap-4">
