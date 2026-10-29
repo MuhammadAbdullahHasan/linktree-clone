@@ -94,3 +94,14 @@ export function contactEmail(socials: { platform: string; url: string }[]): stri
   const url = socials.find((s) => s.platform === "email")?.url ?? "";
   return url.startsWith("mailto:") ? decodeURIComponent(url.slice(7).split("?")[0]) : null;
 }
+
+/** A domain to show under a link's title ("instagram.com"), or the link type for mail and phone links. */
+export function linkCaption(url: string): string {
+  if (url.startsWith("mailto:")) return "Email";
+  if (url.startsWith("tel:")) return "Call";
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}

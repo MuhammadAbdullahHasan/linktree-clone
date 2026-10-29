@@ -40,3 +40,55 @@ body {
 @utility label {
   @apply mb-1.5 block text-sm font-medium text-neutral-700;
 }
+
+/* Public profile page: browser surfaces and the load sequence. */
+.profile ::selection {
+  background: var(--pf-btn);
+  color: var(--pf-btn-ink);
+}
+.profile :focus-visible {
+  outline: 2px solid var(--pf-ink);
+  outline-offset: 3px;
+}
+.profile .pf-tile {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s;
+}
+.profile .pf-tile:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+.profile .pf-tile:active {
+  transform: scale(0.985);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .profile .pf-hero-media {
+    animation: pf-settle 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .profile .pf-rise {
+    animation: pf-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 55ms + 140ms);
+  }
+  .profile .pf-dock {
+    animation: pf-dock 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+  }
+}
+
+@keyframes pf-settle {
+  from {
+    transform: scale(1.08);
+    filter: blur(12px);
+  }
+}
+@keyframes pf-rise {
+  from {
+    opacity: 0.3;
+    transform: translateY(16px);
+  }
+}
+@keyframes pf-dock {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}

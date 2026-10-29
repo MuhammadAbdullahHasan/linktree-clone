@@ -2,17 +2,27 @@
 
 import { useMemo, useRef, useState } from "react";
 import { FaCamera, FaTrash } from "react-icons/fa6";
-import { deleteSocial, removeAvatar, saveSocial, updateProfile, updateTheme, uploadAvatar } from "@/app/dashboard/actions";
+import {
+  deleteSocial,
+  removeAvatar,
+  removeCover,
+  saveSocial,
+  updateProfile,
+  updateTheme,
+  uploadAvatar,
+  uploadCover,
+} from "@/app/dashboard/actions";
 import PhonePreview from "@/components/PhonePreview";
 import { SOCIAL_PLATFORMS, SOCIALS_BY_ID } from "@/lib/socials";
 import { FONTS, THEME_PRESETS, type Theme } from "@/lib/themes";
 import type { Link, PageData, SocialLink } from "@/lib/types";
 import { useAutosave, type SaveStatus } from "@/lib/use-autosave";
 
-type ProfileFields = { displayName: string; bio: string; avatarUrl: string | null };
+type ProfileFields = { displayName: string; bio: string; avatarUrl: string | null; coverUrl: string | null };
 
 type Props = {
   username: string;
+  verified: boolean;
   initialProfile: ProfileFields;
   initialTheme: Theme;
   initialSocials: SocialLink[];
@@ -38,6 +48,8 @@ export default function AppearanceEditor(props: Props) {
     displayName: profile.displayName.trim() || null,
     bio: profile.bio.trim() || null,
     avatarUrl: profile.avatarUrl,
+    coverUrl: profile.coverUrl,
+    verified: props.verified,
     theme,
     links: props.links,
     socials,
@@ -53,6 +65,10 @@ export default function AppearanceEditor(props: Props) {
             url={profile.avatarUrl}
             fallback={(profile.displayName || props.username).charAt(0).toUpperCase()}
             onChange={(avatarUrl) => setProfile((p) => ({ ...p, avatarUrl }))}
+          />
+          <CoverPicker
+            url={profile.coverUrl}
+            onChange={(coverUrl) => setProfile((p) => ({ ...p, coverUrl }))}
           />
           <div className="mt-5 space-y-4">
             <div>
@@ -249,6 +265,96 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 }
 
 /** Crops to a centered square and scales down to 400px, so uploads stay small. */
+/** Crops to a 4:5 portrait from the centre and scales to at most 900x1125 for the hero card. */
+async function resizeCover(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const ratio = 4 / 5;
+  const sw = Math.min(bitmap.width, bitmap.height * ratio);
+  const sh = sw / ratio;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(Math.min(900, sw));
+  canvas.height = Math.round(canvas.width / ratio);
+  canvas
+    .getContext("2d")!
+    .drawImage(bitmap, (bitmap.width - sw) / 2, (bitmap.height - sh) / 2, sw, sh, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  for (const quality of [0.82, 0.7, 0.55]) {
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", quality));
+    if (blob && blob.size < 880 * 1024) return blob;
+  }
+  throw new Error("encode failed");
+}
+
+function CoverPicker({ url, onChange }: { url: string | null; onChange: (url: string | null) => void }) {
+  const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function upload(file: File) {
+    setError(null);
+    if (!file.type.startsWith("image/")) return setError("Choose an image file");
+    if (file.size > 25 * 1024 * 1024) return setError("Image must be under 25 MB");
+    setBusy(true);
+    try {
+      const blob = await resizeCover(file);
+      const form = new FormData();
+      form.append("cover", new File([blob], "cover", { type: blob.type }));
+      const result = await uploadCover(form);
+      if (!result.ok) setError(result.error);
+      else onChange(result.data);
+    } catch {
+      setError("Couldn't read that image. Try a PNG or JPG.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove() {
+    setBusy(true);
+    const result = await removeCover();
+    setBusy(false);
+    if (!result.ok) return setError(result.error);
+    onChange(null);
+  }
+
+  return (
+    <div className="mt-6 flex items-center gap-5">
+      <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-xl bg-neutral-200">
+        {url && (
+          // eslint-disable-next-line @next/next/no-img-element -- user upload
+          <img src={url} alt="" className="h-full w-full object-cover" />
+        )}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-neutral-800">Cover photo</p>
+        <p className="mt-0.5 text-xs text-neutral-500">The big photo at the top of your page. Portrait works best.</p>
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          <button type="button" disabled={busy} onClick={() => input.current?.click()} className="btn-secondary">
+            <FaCamera /> {busy ? "Working…" : url ? "Change cover" : "Upload cover"}
+          </button>
+          {url && (
+            <button type="button" disabled={busy} onClick={remove} className="btn-secondary">
+              Remove
+            </button>
+          )}
+        </div>
+        {error && <p role="alert" className="mt-2 text-sm text-red-600">{error}</p>}
+      </div>
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) upload(file);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
 async function resizeImage(file: File, size = 400): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
   const side = Math.min(bitmap.width, bitmap.height);

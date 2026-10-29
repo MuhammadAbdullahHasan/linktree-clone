@@ -10,11 +10,18 @@ export const profileColumns = {
   bio: profiles.bio,
   avatarType: profiles.avatarType,
   avatarVersion: profiles.avatarVersion,
+  coverType: profiles.coverType,
+  coverVersion: profiles.coverVersion,
+  verified: profiles.verified,
   theme: profiles.theme,
 };
 
 export function avatarUrlFor(p: { id: string; avatarType: string | null; avatarVersion: number }) {
   return p.avatarType ? `/avatar/${p.id}?v=${p.avatarVersion}` : null;
+}
+
+export function coverUrlFor(p: { id: string; coverType: string | null; coverVersion: number }) {
+  return p.coverType ? `/cover/${p.id}?v=${p.coverVersion}` : null;
 }
 
 export function toProfile(row: {
@@ -24,6 +31,9 @@ export function toProfile(row: {
   bio: string | null;
   avatarType: string | null;
   avatarVersion: number;
+  coverType: string | null;
+  coverVersion: number;
+  verified: boolean;
   theme: unknown;
 }): Profile {
   return {
@@ -32,6 +42,8 @@ export function toProfile(row: {
     displayName: row.displayName,
     bio: row.bio,
     avatarUrl: avatarUrlFor(row),
+    coverUrl: coverUrlFor(row),
+    verified: row.verified,
     theme: row.theme,
   };
 }

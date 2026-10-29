@@ -6,6 +6,8 @@ export type Profile = {
   displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
+  verified: boolean;
   theme: unknown;
 };
 
@@ -30,6 +32,8 @@ export type PageData = {
   displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
+  verified: boolean;
   theme: Theme;
   links: Pick<Link, "id" | "title" | "url">[];
   socials: Pick<SocialLink, "id" | "platform" | "url">[];

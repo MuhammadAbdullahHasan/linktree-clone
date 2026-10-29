@@ -51,6 +51,11 @@ export const profiles = sqliteTable("profiles", {
   avatar: blob("avatar", { mode: "buffer" }),
   avatarType: text("avatar_type"),
   avatarVersion: integer("avatar_version").notNull().default(0),
+  cover: blob("cover", { mode: "buffer" }),
+  coverType: text("cover_type"),
+  coverVersion: integer("cover_version").notNull().default(0),
+  // Set by hand by the site owner; there is no self-serve way to become verified.
+  verified: integer("verified", { mode: "boolean" }).notNull().default(false),
   theme: text("theme", { mode: "json" }).notNull().default({}),
   createdAt: createdAt(),
 });

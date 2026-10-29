@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local database
 /data/*.db*
+
+# design review captures
+/.impeccable/review/

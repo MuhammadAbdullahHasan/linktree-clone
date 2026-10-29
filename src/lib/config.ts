@@ -1,5 +1,5 @@
 // Rename the product here.
-export const APP_NAME = "Linkfolio";
+export const APP_NAME = "OneTap";
 
 export function siteUrl() {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");

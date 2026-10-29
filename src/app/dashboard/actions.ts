@@ -4,7 +4,7 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, links, profiles, socialLinks } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
-import { avatarUrlFor, linkColumns, socialColumns } from "@/lib/profile-query";
+import { avatarUrlFor, coverUrlFor, linkColumns, socialColumns } from "@/lib/profile-query";
 import { socialInputToUrl, SOCIALS_BY_ID } from "@/lib/socials";
 import { themeSchema, type Theme } from "@/lib/themes";
 import type { ActionResult, Link, SocialLink } from "@/lib/types";
@@ -16,6 +16,7 @@ import { usernameSchema } from "@/lib/username";
 const BAD_URL = "Enter a valid web address, like example.com";
 const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_AVATAR_BYTES = 512 * 1024;
+const MAX_COVER_BYTES = 900 * 1024;
 
 async function requireUserId() {
   const user = await getCurrentUser();
@@ -161,6 +162,31 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult<str
     .where(eq(profiles.id, userId))
     .returning({ id: profiles.id, avatarType: profiles.avatarType, avatarVersion: profiles.avatarVersion });
   return { ok: true, data: avatarUrlFor(row)! };
+}
+
+/** Saves a cover photo. The browser crops and resizes it first. */
+export async function uploadCover(formData: FormData): Promise<ActionResult<string>> {
+  const file = formData.get("cover");
+  if (!(file instanceof File) || !AVATAR_TYPES.has(file.type)) return fail("Choose a PNG, JPG or WebP image");
+  if (file.size > MAX_COVER_BYTES) return fail("Image is too large");
+
+  const userId = await requireUserId();
+  const [row] = await db
+    .update(profiles)
+    .set({
+      cover: Buffer.from(await file.arrayBuffer()),
+      coverType: file.type,
+      coverVersion: sql`${profiles.coverVersion} + 1`,
+    })
+    .where(eq(profiles.id, userId))
+    .returning({ id: profiles.id, coverType: profiles.coverType, coverVersion: profiles.coverVersion });
+  return { ok: true, data: coverUrlFor(row)! };
+}
+
+export async function removeCover(): Promise<ActionResult> {
+  const userId = await requireUserId();
+  await db.update(profiles).set({ cover: null, coverType: null }).where(eq(profiles.id, userId));
+  return { ok: true, data: null };
 }
 
 export async function removeAvatar(): Promise<ActionResult> {

@@ -9,10 +9,12 @@ export default async function AppearancePage() {
   return (
     <AppearanceEditor
       username={profile.username}
+      verified={profile.verified}
       initialProfile={{
         displayName: profile.displayName ?? "",
         bio: profile.bio ?? "",
         avatarUrl: profile.avatarUrl,
+        coverUrl: profile.coverUrl,
       }}
       initialTheme={resolveTheme(profile.theme)}
       initialSocials={socials}

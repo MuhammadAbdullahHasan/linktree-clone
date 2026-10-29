@@ -11,6 +11,8 @@ const DEMO: PageData = {
   displayName: "Maya Okafor",
   bio: "Ceramicist & weekend baker. New pieces every first Friday.",
   avatarUrl: null,
+  coverUrl: null,
+  verified: false,
   theme: THEME_PRESETS.find((p) => p.id === "sunset")!.theme,
   links: [
     { id: "1", title: "Shop the new collection", url: "#" },
