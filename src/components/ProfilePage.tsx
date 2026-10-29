@@ -94,8 +94,9 @@ export default function ProfilePage({ data, preview = false }: Props) {
             // Without a cover there's no photo to show off, so the hero shrinks to a name card.
             height: cover ? (preview ? 310 : "min(56svh, 520px)") : preview ? 220 : "min(34svh, 300px)",
             minHeight: preview ? undefined : cover ? 360 : 250,
-            background: cover ? "#111" : background,
-            boxShadow: cover ? undefined : `inset 0 0 0 1px color-mix(in oklab, ${theme.text} 12%, transparent)`,
+            // No cover: the name sits straight on the page background (a gradient squeezed into this
+            // short box would put dark text on the gradient's dark end).
+            background: cover ? "#111" : "transparent",
           }}
         >
           {cover ? (
