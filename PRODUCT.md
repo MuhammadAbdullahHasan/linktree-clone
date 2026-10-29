@@ -31,7 +31,8 @@ The digital half of a physical OneTap card. The page is designed for the moment 
 - Per-owner themes: presets plus custom background (solid or gradient), text colour, button colour and style (fill, outline or hard shadow), shape and font. Every redesign must keep these themes working.
 - Links go through /go/<id> for click analytics. Views are counted with a beacon.
 - Stack: Next.js 15, Tailwind v4, SQLite/Turso. Deployed on Vercel in bom1.
-- Undecided: cover photos and verification badges don't exist as product features yet.
+- Owners can upload an optional cover photo, which becomes the page's hero.
+- The verified tick appears only on pages the site owner approves, using a flag in the database. There is no self-serve verification.
 
 ## Brand Commitments
 

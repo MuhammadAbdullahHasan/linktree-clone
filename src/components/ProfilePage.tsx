@@ -5,7 +5,7 @@ import { MdVerified } from "react-icons/md";
 import ActionDock from "@/components/ActionDock";
 import { APP_NAME } from "@/lib/config";
 import { contactEmail, contactPhone, linkCaption, SOCIALS_BY_ID } from "@/lib/socials";
-import { FONTS, type Theme } from "@/lib/themes";
+import { FONTS, similarColors, type Theme } from "@/lib/themes";
 import type { PageData } from "@/lib/types";
 
 const TILE_RADIUS: Record<Theme["buttonShape"], string> = {
@@ -38,6 +38,11 @@ function tileStyle(theme: Theme): CSSProperties {
   }
 }
 
+/** Lets long names and handles wrap after dots and underscores instead of mid-word. */
+function breakable(text: string) {
+  return text.split(/(?<=[._])/).flatMap((part, i) => (i === 0 ? [part] : [<wbr key={i} />, part]));
+}
+
 type Props = {
   data: PageData;
   /** Preview mode: fills its container, links open directly in a new tab and aren't counted. */
@@ -50,7 +55,7 @@ export default function ProfilePage({ data, preview = false }: Props) {
   const phone = contactPhone(data.socials, data.links);
   const background =
     theme.bgStyle === "gradient" ? `linear-gradient(165deg, ${theme.bg}, ${theme.bg2})` : theme.bg;
-  const media = data.coverUrl ?? data.avatarUrl;
+  const cover = data.coverUrl;
   const vars = {
     "--pf-bg": theme.bg,
     "--pf-ink": theme.text,
@@ -61,15 +66,22 @@ export default function ProfilePage({ data, preview = false }: Props) {
     fontFamily: FONTS[theme.font].variable,
   } as CSSProperties;
 
+  // WhatsApp sits in the dock whenever there's a number, so the panel doesn't repeat it.
+  const socials = phone ? data.socials.filter((s) => s.platform !== "whatsapp") : data.socials;
   // The panel only appears when it has something the hero doesn't already say.
-  const hasPanel = Boolean(data.bio || data.socials.length);
+  const hasPanel = Boolean(data.bio || socials.length);
+  // The panel is normally an inverse "ink" surface. When filled tiles are already the ink colour,
+  // it switches to a tinted page-colour surface so panel and tiles don't merge into one slab.
+  const panelBlends = theme.buttonStyle === "fill" && similarColors(theme.buttonBg, theme.text);
+  const panelBg = panelBlends ? `color-mix(in oklab, ${theme.bg} 90%, ${theme.text})` : theme.text;
+  const panelInk = panelBlends ? theme.text : theme.bg;
 
   return (
     <div className={`profile relative isolate flex w-full flex-col ${preview ? "min-h-full" : "min-h-dvh"}`} style={vars}>
-      {!preview && media && (
+      {!preview && cover && (
         <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 hidden overflow-hidden sm:block">
           {/* eslint-disable-next-line @next/next/no-img-element -- user upload */}
-          <img src={media} alt="" className="h-full w-full scale-110 object-cover opacity-60 blur-3xl saturate-125" />
+          <img src={cover} alt="" className="h-full w-full scale-110 object-cover opacity-60 blur-3xl saturate-125" />
           <div className="absolute inset-0" style={{ background, opacity: 0.55 }} />
         </div>
       )}
@@ -79,23 +91,17 @@ export default function ProfilePage({ data, preview = false }: Props) {
         <section
           className="relative overflow-hidden rounded-[32px]"
           style={{
-            height: preview ? 310 : "min(56svh, 520px)",
-            minHeight: preview ? undefined : 360,
-            background: media ? "#111" : background,
+            // Without a cover there's no photo to show off, so the hero shrinks to a name card.
+            height: cover ? (preview ? 310 : "min(56svh, 520px)") : preview ? 220 : "min(34svh, 300px)",
+            minHeight: preview ? undefined : cover ? 360 : 250,
+            background: cover ? "#111" : background,
+            boxShadow: cover ? undefined : `inset 0 0 0 1px color-mix(in oklab, ${theme.text} 12%, transparent)`,
           }}
         >
-          {data.coverUrl ? (
+          {cover ? (
             // eslint-disable-next-line @next/next/no-img-element -- user upload
-            <img src={data.coverUrl} alt="" className="pf-hero-media absolute inset-0 h-full w-full object-cover" />
-          ) : data.avatarUrl ? (
-            // No cover: the profile photo, enlarged and softened, becomes the backdrop.
-            // eslint-disable-next-line @next/next/no-img-element -- user upload
-            <img
-              src={data.avatarUrl}
-              alt=""
-              className="pf-hero-media absolute inset-0 h-full w-full scale-125 object-cover blur-2xl saturate-150"
-            />
-          ) : (
+            <img src={cover} alt="" className="pf-hero-media absolute inset-0 h-full w-full object-cover" />
+          ) : data.avatarUrl ? null : (
             <span
               aria-hidden
               className="absolute -top-6 -right-4 select-none text-[220px] leading-none font-bold opacity-15"
@@ -104,7 +110,7 @@ export default function ProfilePage({ data, preview = false }: Props) {
             </span>
           )}
 
-          {media && (
+          {cover && (
             <div
               aria-hidden
               className="absolute inset-0"
@@ -115,58 +121,68 @@ export default function ProfilePage({ data, preview = false }: Props) {
             />
           )}
 
-          <div className={`absolute inset-x-0 bottom-0 px-6 ${hasPanel ? "pb-12" : "pb-6"}`} style={{ color: media ? "#fff" : theme.text }}>
-            {data.displayName && (
-            <span
-              className="inline-block rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md"
-              style={
-                media
-                  ? { background: "rgb(255 255 255 / 0.82)", color: "rgb(0 0 0 / 0.78)" }
-                  : { background: `color-mix(in oklab, ${theme.text} 12%, transparent)` }
-              }
-            >
-              @{data.username}
-            </span>
+          <div className={`absolute inset-x-0 bottom-0 px-6 ${hasPanel ? "pb-12" : "pb-6"}`} style={{ color: cover ? "#fff" : theme.text }}>
+            {!cover && data.avatarUrl && (
+              <span
+                className="mb-4 inline-block rounded-full p-[3px]"
+                style={{ boxShadow: `inset 0 0 0 1.5px color-mix(in oklab, ${theme.text} 45%, transparent)` }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- user upload */}
+                <img src={data.avatarUrl} alt="" width={88} height={88} className="block h-[88px] w-[88px] rounded-full object-cover" />
+              </span>
             )}
             <h1
-              className={`${data.displayName ? "mt-3" : ""} font-semibold tracking-[-0.02em] text-balance break-words ${
-                preview ? "text-[28px] leading-[1.05]" : "text-[clamp(2rem,9vw,2.75rem)] leading-[1.03]"
+              className={`font-semibold tracking-[-0.02em] text-balance break-words ${
+                preview
+                  ? name.length > 16 ? "text-[22px] leading-[1.1]" : "text-[28px] leading-[1.05]"
+                  : name.length > 16
+                    ? "text-[clamp(1.6rem,7vw,2.25rem)] leading-[1.08]"
+                    : "text-[clamp(2rem,9vw,2.75rem)] leading-[1.03]"
               }`}
             >
-              {name}
+              {breakable(name)}
               {data.verified && (
                 <MdVerified aria-label="Verified" role="img" className="ml-2 inline-block size-[0.72em] -translate-y-[0.08em] align-middle" />
               )}
             </h1>
+            {data.displayName && <p className="mt-1.5 text-[15px] font-medium opacity-75">@{data.username}</p>}
           </div>
         </section>
 
         {/* Ink panel */}
         {hasPanel && (
           <section
-            className="pf-rise relative z-10 -mt-7 rounded-[32px] px-5 py-5"
-            style={{ background: theme.text, color: theme.bg, "--i": 0 } as CSSProperties}
+            className="pf-rise pf-ink relative z-10 -mt-7 rounded-[32px] px-5 py-5"
+            style={
+              {
+                background: panelBg,
+                color: panelInk,
+                boxShadow: panelBlends ? `inset 0 0 0 1px color-mix(in oklab, ${theme.text} 14%, transparent)` : undefined,
+                "--i": 0,
+                "--pf-focus": panelInk,
+              } as CSSProperties
+            }
           >
             <div className="flex items-center gap-4">
-              {data.avatarUrl && (
+              {cover && data.avatarUrl && (
                 <span
                   className="shrink-0 rounded-full p-[3px]"
-                  style={{ boxShadow: `inset 0 0 0 1.5px color-mix(in oklab, ${theme.bg} 70%, transparent)` }}
+                  style={{ boxShadow: `inset 0 0 0 1.5px color-mix(in oklab, ${panelInk} 70%, transparent)` }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- user upload */}
                   <img src={data.avatarUrl} alt="" width={64} height={64} className="block h-16 w-16 rounded-full object-cover" />
                 </span>
               )}
               {data.bio && (
-                <p className="min-w-0 text-[15px] leading-snug whitespace-pre-line" style={{ color: `color-mix(in oklab, ${theme.bg} 82%, ${theme.text})` }}>
+                <p className="min-w-0 text-[15px] leading-snug whitespace-pre-line" style={{ color: `color-mix(in oklab, ${panelInk} 82%, ${panelBg})` }}>
                   {data.bio}
                 </p>
               )}
             </div>
 
-            {data.socials.length > 0 && (
-              <ul className={`flex flex-wrap gap-2.5 ${data.avatarUrl || data.bio ? "mt-5" : ""}`}>
-                {data.socials.map((social) => {
+            {socials.length > 0 && (
+              <ul className={`flex flex-wrap gap-2.5 ${(cover && data.avatarUrl) || data.bio ? "mt-5" : ""}`}>
+                {socials.map((social) => {
                   const platform = SOCIALS_BY_ID.get(social.platform);
                   if (!platform) return null;
                   const Icon = platform.icon;
@@ -178,7 +194,7 @@ export default function ProfilePage({ data, preview = false }: Props) {
                         rel="noopener noreferrer"
                         aria-label={platform.label}
                         className="grid h-11 w-11 place-items-center rounded-full transition-[background-color,transform] duration-200 hover:scale-105 active:scale-95"
-                        style={{ boxShadow: `inset 0 0 0 1.5px color-mix(in oklab, ${theme.bg} 40%, transparent)` }}
+                        style={{ boxShadow: `inset 0 0 0 1.5px color-mix(in oklab, ${panelInk} 40%, transparent)` }}
                       >
                         <Icon size={18} />
                       </a>

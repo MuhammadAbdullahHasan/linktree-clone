@@ -19,9 +19,9 @@ OWN-WORLD: a tall photo card with 32px corners and the name set large over a dar
 
 STORY: who this is (photo and name), what they do (bio), how to reach them (dock), and where to go next (tiles).
 
-FIRST VIEWPORT: the hero card fills about 60% of the height, with the @handle chip, name and tick at its bottom left. The ink panel overlaps the hero's bottom edge by 28px. The dock is pinned 16px above the bottom: Save contact as a labelled primary pill, then WhatsApp, Call and Share discs.
+FIRST VIEWPORT: with a cover, the hero card fills about 56% of the height, with the name, tick and @handle line at its bottom left. Without a cover, the hero is a short name card in the theme ground with a sharp ringed avatar above the name. The ink panel overlaps the hero's bottom edge by 28px. The dock is pinned 16px above the bottom: Save contact as a labelled primary pill, then WhatsApp, Call and Share discs.
 
-FORM: user-pinned reference (stacked rounded cards, ink profile panel, floating pill dock). Position 1 of 1, pinned by the brief. seed: none (unavailable)
+FORM: user-pinned reference (stacked rounded cards, ink profile panel, floating pill dock). Position 1 of 1, pinned by the user's reference image. No concept-seed roll was run, because a pinned direction beats the roll. seed: none (pinned by user reference, no roll run)
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
