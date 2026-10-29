@@ -60,7 +60,7 @@ export default function ActionDock({ username, name, phone, email, whatsapp, ink
     "grid h-12 w-12 place-items-center rounded-full transition-[background-color,transform] duration-200 hover:bg-[color-mix(in_oklab,currentColor_14%,transparent)] active:scale-90";
 
   return (
-    <div className="pointer-events-none sticky bottom-0 z-30 flex justify-center px-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
+    <div className="@container pointer-events-none sticky bottom-0 z-30 flex justify-center px-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
       <nav
         aria-label="Contact"
         className="pf-dock pointer-events-auto flex items-center gap-1 rounded-full p-1.5 backdrop-blur-xl"
@@ -75,11 +75,13 @@ export default function ActionDock({ username, name, phone, email, whatsapp, ink
         {phone && (
           <a
             href={saveHref}
-            className="flex h-12 items-center gap-2 rounded-full pr-5 pl-4 text-sm font-semibold transition-transform duration-200 active:scale-95"
+            aria-label="Save contact"
+            className="flex h-12 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-transform duration-200 active:scale-95 @min-[330px]:pr-5"
             style={{ background: light, color: dark }}
           >
             <FaUserPlus aria-hidden size={16} />
-            Save contact
+            {/* Narrow frames (the dashboard preview) show the icon alone. */}
+            <span className="hidden @min-[330px]:inline">Save contact</span>
           </a>
         )}
         {whatsapp && (

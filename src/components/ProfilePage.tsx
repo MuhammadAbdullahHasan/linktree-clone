@@ -122,7 +122,10 @@ export default function ProfilePage({ data, preview = false }: Props) {
             />
           )}
 
-          <div className={`absolute inset-x-0 bottom-0 px-6 ${hasPanel ? "pb-12" : "pb-6"}`} style={{ color: cover ? "#fff" : theme.text }}>
+          <div
+            className={`absolute inset-x-0 bottom-0 px-6 ${hasPanel ? "pb-12" : "pb-6"} ${cover ? "" : "text-center"}`}
+            style={{ color: cover ? "#fff" : theme.text }}
+          >
             {!cover && data.avatarUrl && (
               <span
                 className="mb-4 inline-block rounded-full p-[3px]"
