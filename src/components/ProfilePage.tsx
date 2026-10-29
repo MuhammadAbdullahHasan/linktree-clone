@@ -39,7 +39,7 @@ type Props = {
 export default function ProfilePage({ data, preview = false }: Props) {
   const { theme } = data;
   const name = data.displayName || `@${data.username}`;
-  const phone = contactPhone(data.socials);
+  const phone = contactPhone(data.socials, data.links);
   const background =
     theme.bgStyle === "gradient" ? `linear-gradient(165deg, ${theme.bg}, ${theme.bg2})` : theme.bg;
 

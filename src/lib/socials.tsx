@@ -72,12 +72,21 @@ export function socialInputToUrl(platform: string, input: string): string | null
   return value;
 }
 
-/** The phone number (+digits) from a page's WhatsApp icon, used for "Save contact". */
-export function contactPhone(socials: { platform: string; url: string }[]): string | null {
-  const url = socials.find((s) => s.platform === "whatsapp")?.url ?? "";
-  const digits = url.match(/wa\.me\/\+?(\d+)/i)?.[1];
-  const number = digits ? toWhatsAppNumber(digits) : null;
-  return number ? `+${number}` : null;
+/**
+ * The phone number (+digits) for "Save contact": from the page's WhatsApp icon, or else from a
+ * link button that points to wa.me.
+ */
+export function contactPhone(
+  socials: { platform: string; url: string }[],
+  links: { url: string }[] = [],
+): string | null {
+  const urls = [...socials.filter((s) => s.platform === "whatsapp"), ...links].map((x) => x.url);
+  for (const url of urls) {
+    const digits = url.match(/^https?:\/\/(?:www\.)?wa\.me\/\+?(\d+)/i)?.[1];
+    const number = digits ? toWhatsAppNumber(digits) : null;
+    if (number) return `+${number}`;
+  }
+  return null;
 }
 
 /** The email address from a page's Email icon, if any. */

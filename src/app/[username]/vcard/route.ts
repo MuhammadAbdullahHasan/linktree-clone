@@ -10,7 +10,7 @@ const esc = (value: string) =>
 export async function GET(_request: Request, { params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const page = (await getPublicPage(decodeURIComponent(username)))?.page;
-  const phone = page ? contactPhone(page.socials) : null;
+  const phone = page ? contactPhone(page.socials, page.links) : null;
   if (!page || !phone) return new Response("Not found", { status: 404 });
 
   const name = page.displayName || page.username;
