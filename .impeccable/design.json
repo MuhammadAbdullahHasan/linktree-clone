@@ -1,60 +1,78 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-29T09:33:28.096207+00:00",
+  "generatedAt": "2026-10-30T14:25:52.439837+00:00",
   "title": "Design System: OneTap",
   "extensions": {
     "colorMeta": {
-      "paper-ink": {
+      "chrome-ink": {
         "role": "primary",
-        "displayName": "Paper Ink",
-        "canonical": "#1d1b16",
-        "note": "Default of the per-owner theme `text` role; ink-panel surface.",
+        "displayName": "Chrome Ink",
+        "canonical": "#0d0d0f",
+        "note": "Chrome default of theme `text` and `buttonText`; card surface, tile text, dock body.",
         "tonalRamp": [
-          "oklch(15% 0.008 85)",
-          "oklch(25% 0.008 85)",
-          "oklch(40% 0.008 85)",
-          "oklch(55% 0.008 85)",
-          "oklch(70% 0.008 85)",
-          "oklch(82% 0.008 85)",
-          "oklch(90% 0.008 85)",
-          "oklch(96% 0.008 85)"
+          "oklch(15% 0.004 285)",
+          "oklch(25% 0.004 285)",
+          "oklch(40% 0.004 285)",
+          "oklch(55% 0.004 285)",
+          "oklch(70% 0.004 285)",
+          "oklch(82% 0.004 285)",
+          "oklch(90% 0.004 285)",
+          "oklch(96% 0.004 285)"
         ]
       },
-      "paper-ground": {
+      "chrome-silver": {
         "role": "neutral",
-        "displayName": "Paper Ground",
-        "canonical": "#f4f1ea",
-        "note": "Default of the per-owner theme `bg` role; page ground and ink-panel text.",
+        "displayName": "Chrome Silver",
+        "canonical": "#d4d4d7",
+        "note": "Chrome default of theme `buttonBg`; filled tiles, card ink in Chrome.",
         "tonalRamp": [
-          "oklch(15% 0.012 85)",
-          "oklch(25% 0.012 85)",
-          "oklch(40% 0.012 85)",
-          "oklch(55% 0.012 85)",
-          "oklch(70% 0.012 85)",
-          "oklch(82% 0.012 85)",
-          "oklch(90% 0.012 85)",
-          "oklch(96% 0.012 85)"
+          "oklch(15% 0.003 285)",
+          "oklch(25% 0.003 285)",
+          "oklch(40% 0.003 285)",
+          "oklch(55% 0.003 285)",
+          "oklch(70% 0.003 285)",
+          "oklch(82% 0.003 285)",
+          "oklch(90% 0.003 285)",
+          "oklch(96% 0.003 285)"
         ]
       },
-      "cover-ground": {
+      "chrome-light": {
         "role": "neutral",
-        "displayName": "Cover Ground",
-        "canonical": "#111111",
+        "displayName": "Chrome Light",
+        "canonical": "#c9c9cc",
+        "note": "Chrome default of theme `bg`; page gradient top, dock light colour.",
         "tonalRamp": [
-          "oklch(15% 0 0)",
-          "oklch(25% 0 0)",
-          "oklch(40% 0 0)",
-          "oklch(55% 0 0)",
-          "oklch(70% 0 0)",
-          "oklch(82% 0 0)",
-          "oklch(90% 0 0)",
-          "oklch(96% 0 0)"
+          "oklch(15% 0.003 285)",
+          "oklch(25% 0.003 285)",
+          "oklch(40% 0.003 285)",
+          "oklch(55% 0.003 285)",
+          "oklch(70% 0.003 285)",
+          "oklch(82% 0.003 285)",
+          "oklch(90% 0.003 285)",
+          "oklch(96% 0.003 285)"
         ]
       },
-      "cover-name": {
+      "chrome-shade": {
         "role": "neutral",
-        "displayName": "Cover Name",
+        "displayName": "Chrome Shade",
+        "canonical": "#3a3a3d",
+        "note": "Chrome default of theme `bg2`; page gradient bottom.",
+        "tonalRamp": [
+          "oklch(15% 0.004 285)",
+          "oklch(25% 0.004 285)",
+          "oklch(40% 0.004 285)",
+          "oklch(55% 0.004 285)",
+          "oklch(70% 0.004 285)",
+          "oklch(82% 0.004 285)",
+          "oklch(90% 0.004 285)",
+          "oklch(96% 0.004 285)"
+        ]
+      },
+      "sheet-white": {
+        "role": "neutral",
+        "displayName": "Sheet White",
         "canonical": "#ffffff",
+        "note": "Fixed: QR sheet, light QR modules, card ink over a cover photo.",
         "tonalRamp": [
           "oklch(15% 0 0)",
           "oklch(25% 0 0)",
@@ -68,192 +86,229 @@
       }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display",
-        "purpose": "Owner name at the hero's bottom left. Family follows the theme font (Inter, Nunito, Lora or JetBrains Mono)."
+      "name": {
+        "displayName": "Name",
+        "purpose": "Display name on the profile card; owner font."
       },
-      "display-long": {
-        "displayName": "Display long",
-        "purpose": "Owner name longer than 16 characters."
+      "name-long": {
+        "displayName": "Name Long",
+        "purpose": "Names over 18 characters."
       },
-      "handle": {
-        "displayName": "Handle",
-        "purpose": "@username under the name, 75% opacity."
+      "tile-title-wide": {
+        "displayName": "Tile Title Wide",
+        "purpose": "Title on the full-width last tile."
       },
-      "title": {
-        "displayName": "Title",
-        "purpose": "Link tile titles."
+      "tile-title": {
+        "displayName": "Tile Title",
+        "purpose": "Tile titles, two lines max."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Bio in the ink panel."
-      },
-      "caption": {
-        "displayName": "Caption",
-        "purpose": "Domain line under tile titles, 65% opacity."
+        "purpose": "Bio as a tagline, max 30ch, 75% opacity."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Dock Save contact pill."
+        "purpose": "Contact pill labels; 13px under 300px frames."
+      },
+      "handle": {
+        "displayName": "Handle",
+        "purpose": "@handle, 60% opacity."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Tile domain; footer wordmark at 600 with wide tracking."
       }
     },
     "shadows": [
       {
-        "name": "tile-rest",
-        "value": "0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.25)",
+        "name": "card-lift",
+        "value": "inset 0 1px 0 rgb(255 255 255 / 0.18), inset 0 0 0 1px color-mix(in oklab, #d4d4d7 10%, transparent), 0 24px 50px -28px rgb(0 0 0 / 0.7)",
+        "purpose": "Profile card; the ring uses the derived card ink."
+      },
+      {
+        "name": "tile-sheen",
+        "value": "inset 0 1px 0 rgb(255 255 255 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.12), 0 14px 30px -18px rgb(0 0 0 / 0.55)",
         "purpose": "Filled link tiles."
       },
       {
-        "name": "owner-hard-shadow",
-        "value": "4px 4px 0 var(--pf-ink)",
-        "purpose": "Only for the owner-selected Hard shadow tile style, with a 2px solid border in the theme ink."
-      },
-      {
         "name": "dock-float",
-        "value": "inset 0 0 0 1px color-mix(in oklab, <light> 22%, transparent), 0 22px 48px -12px rgb(0 0 0 / 0.6), 0 4px 10px rgb(0 0 0 / 0.18)",
-        "purpose": "Floating contact dock."
+        "value": "inset 0 0 0 1px color-mix(in oklab, #c9c9cc 18%, transparent), 0 22px 48px -12px rgb(0 0 0 / 0.6), 0 4px 10px rgb(0 0 0 / 0.18)",
+        "purpose": "The floating dock."
       },
       {
-        "name": "ring",
-        "value": "inset 0 0 0 1.5px color-mix(in oklab, <ink> 40-70%, transparent)",
-        "purpose": "Avatar rings and social discs."
+        "name": "disc-pop",
+        "value": "0 4px 14px -4px rgb(0 0 0 / 0.5)",
+        "purpose": "Highlighted (first) dock disc."
+      },
+      {
+        "name": "avatar-ring",
+        "value": "0 10px 28px -10px rgb(0 0 0 / 0.6)",
+        "purpose": "Under the avatar ring."
       }
     ],
     "motion": [
       {
         "name": "ease-settle",
         "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "All profile motion."
-      },
-      {
-        "name": "hero-settle",
-        "value": "1.2s, from scale(1.08) blur(12px)",
-        "purpose": "Cover photo on load."
+        "purpose": "All profile motion: rise, dock float-in, tile hover/press."
       },
       {
         "name": "rise",
-        "value": "0.8s, from translateY(16px) opacity 0.3, delay i*55ms + 140ms",
-        "purpose": "Ink panel then each tile, in order."
+        "value": "0.8s; from translateY(16px) opacity 0.3; delay i*55ms + 140ms",
+        "purpose": "Card and tiles enter in sequence."
       },
       {
-        "name": "dock-arrive",
-        "value": "0.7s after 0.4s, from translateY(24px) scale(0.96) opacity 0",
-        "purpose": "Contact dock."
+        "name": "dock-in",
+        "value": "0.7s after 0.4s; from translateY(24px) scale(0.96) opacity 0",
+        "purpose": "Dock floats in."
+      },
+      {
+        "name": "cover-settle",
+        "value": "1.2s; from scale(1.08) blur(12px)",
+        "purpose": "Cover photo inside the card."
       },
       {
         "name": "tile-hover",
-        "value": "0.25s translateY(-1px) brightness(1.04); active scale(0.985)",
-        "purpose": "Link tile states."
+        "value": "0.25s; translateY(-1px) brightness(1.04); press scale(0.985)",
+        "purpose": "Tile feedback."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: no-preference gate",
+        "purpose": "All load animation is static otherwise."
       }
     ],
     "breakpoints": [
       {
+        "name": "pill-icons",
+        "value": "300px container",
+        "purpose": "Contact pill icons appear at 300px+ frames."
+      },
+      {
         "name": "sm",
         "value": "640px",
-        "note": "Top padding 32px; blurred cover backdrop appears."
+        "purpose": "32px top padding; blurred cover fills the page background."
       }
-    ]
+    ],
+    "boundary": "Governs the public profile page (ProfilePage, ActionDock, ContactActions, the .profile block in globals.css) and its dashboard preview. Dashboard and marketing pages keep the older look: #f7f6f3 ground, #16151a text, #5b3df5 accent, btn/card/input utilities."
   },
   "components": [
     {
-      "name": "Hero Card (cover)",
+      "name": "Profile Card",
       "kind": "card",
-      "refersTo": "hero-card-cover",
-      "description": "Photo card with bottom scrim and the name, tick and handle at bottom left.",
-      "html": "<section class=\"ds-hero\"><div class=\"ds-hero-scrim\"></div><div class=\"ds-hero-text\"><h1 class=\"ds-hero-name\">Maya Okafor</h1><p class=\"ds-hero-handle\">@maya</p></div></section>",
-      "css": ".ds-hero{position:relative;overflow:hidden;border-radius:32px;height:360px;background:#111 linear-gradient(135deg,#3b5b6b,#111);font-family:Inter,system-ui,sans-serif}.ds-hero-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgb(0 0 0/.68) 0%,rgb(0 0 0/.28) 42%,rgb(0 0 0/0) 68%)}.ds-hero-text{position:absolute;left:0;right:0;bottom:0;padding:0 24px 48px;color:#fff}.ds-hero-name{margin:0;font-size:44px;font-weight:600;line-height:1.03;letter-spacing:-0.02em}.ds-hero-handle{margin:6px 0 0;font-size:15px;font-weight:500;opacity:.75}"
+      "refersTo": "profile-card",
+      "description": "The dark top-lit card: ringed avatar, name, handle, bio, contact pills, social discs.",
+      "html": "<section class=\"ds-card\"><span class=\"ds-ring\"><span class=\"ds-avatar\">O</span></span><h1 class=\"ds-name\">OneTap</h1><p class=\"ds-handle\">@onetapcards.official</p><p class=\"ds-bio\">Connect, share, grow with OneTap</p></section>",
+      "css": ".ds-card{max-width:400px;padding:32px 20px 24px;border-radius:34px;text-align:center;color:#d4d4d7;font-family:Inter,system-ui,sans-serif;background:linear-gradient(180deg,color-mix(in oklab,#0d0d0f 68%,white) 0%,#0d0d0f 55%,color-mix(in oklab,#0d0d0f 90%,black) 100%);box-shadow:inset 0 1px 0 rgb(255 255 255/.18),inset 0 0 0 1px color-mix(in oklab,#d4d4d7 10%,transparent),0 24px 50px -28px rgb(0 0 0/.7)}.ds-ring{display:block;width:fit-content;margin:0 auto;padding:5px;border-radius:9999px;background:color-mix(in oklab,#d4d4d7 92%,transparent);box-shadow:0 10px 28px -10px rgb(0 0 0/.6)}.ds-avatar{display:grid;place-items:center;width:112px;height:112px;border-radius:9999px;background:#0d0d0f;font-size:36px;font-weight:600}.ds-name{margin:16px 0 0;font-size:22px;font-weight:600;line-height:1.25;letter-spacing:-.01em}.ds-handle{margin:4px 0 0;font-size:13px;opacity:.6}.ds-bio{margin:10px auto 0;max-width:30ch;font-size:14px;line-height:1.625;opacity:.75}"
     },
     {
-      "name": "Ink Panel",
+      "name": "Contact Pill",
+      "kind": "button",
+      "refersTo": "contact-pill",
+      "description": "Outline pill on the card: Save contact and WhatsApp.",
+      "html": "<div class=\"ds-pills\"><a class=\"ds-pill\" href=\"#\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"8\" r=\"4\"/><path d=\"M2 21c0-4 3-6 7-6s7 2 7 6M19 8v6M16 11h6\"/></svg>Save contact</a><a class=\"ds-pill\" href=\"#\">WhatsApp</a></div>",
+      "css": ".ds-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px;background:#0d0d0f;border-radius:34px;font-family:Inter,system-ui,sans-serif}.ds-pill{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 16px;border-radius:9999px;color:#d4d4d7;font-size:14px;font-weight:500;text-decoration:none;box-shadow:inset 0 0 0 1.5px color-mix(in oklab,#d4d4d7 55%,transparent);transition:background-color .2s,transform .2s}.ds-pill:hover{background:color-mix(in oklab,currentColor 10%,transparent)}.ds-pill:active{transform:scale(.97)}.ds-pill:focus-visible{outline:2px solid #d4d4d7;outline-offset:3px}"
+    },
+    {
+      "name": "Social Disc",
+      "kind": "chip",
+      "refersTo": "social-disc",
+      "description": "40px outline circle with a brand icon under the pills.",
+      "html": "<div class=\"ds-socials\"><a class=\"ds-disc\" href=\"#\" aria-label=\"Instagram\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><circle cx=\"17.5\" cy=\"6.5\" r=\"1\" fill=\"currentColor\"/></svg></a></div>",
+      "css": ".ds-socials{display:flex;gap:8px;justify-content:center;padding:16px;background:#0d0d0f;border-radius:34px}.ds-disc{display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;color:#d4d4d7;box-shadow:inset 0 0 0 1.5px color-mix(in oklab,#d4d4d7 35%,transparent);transition:background-color .2s,transform .2s}.ds-disc:hover{background:color-mix(in oklab,currentColor 10%,transparent)}.ds-disc:active{transform:scale(.95)}.ds-disc:focus-visible{outline:2px solid #d4d4d7;outline-offset:3px}"
+    },
+    {
+      "name": "Link Tile",
       "kind": "card",
-      "refersTo": "ink-panel",
-      "description": "Inverse panel overlapping the hero by 28px: bio and outline social discs.",
-      "html": "<section class=\"ds-ink\"><p class=\"ds-ink-bio\">Ceramicist and weekend surf coach.</p><ul class=\"ds-ink-socials\"><li><a href=\"#\" class=\"ds-social\" aria-label=\"Email\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m3 7 9 6 9-6\"/></svg></a></li></ul></section>",
-      "css": ".ds-ink{border-radius:32px;padding:20px;background:#1d1b16;color:#f4f1ea;font-family:Inter,system-ui,sans-serif}.ds-ink-bio{margin:0;font-size:15px;line-height:1.375;color:color-mix(in oklab,#f4f1ea 82%,#1d1b16)}.ds-ink-socials{list-style:none;display:flex;gap:10px;margin:20px 0 0;padding:0}.ds-social{display:grid;place-items:center;width:44px;height:44px;border-radius:9999px;color:inherit;box-shadow:inset 0 0 0 1.5px color-mix(in oklab,#f4f1ea 40%,transparent);transition:transform .2s}.ds-social:hover{transform:scale(1.05)}.ds-social:active{transform:scale(.95)}.ds-social:focus-visible{outline:2px solid #f4f1ea;outline-offset:3px}"
-    },
-    {
-      "name": "Link Tile (fill)",
-      "kind": "button",
       "refersTo": "link-tile",
-      "description": "Default filled tile with domain caption and arrow disc.",
-      "html": "<a href=\"#\" class=\"ds-tile\"><span class=\"ds-tile-text\"><span class=\"ds-tile-title\">My portfolio</span><span class=\"ds-tile-cap\">example.org</span></span><span class=\"ds-tile-arrow\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></span></a>",
-      "css": ".ds-tile{display:flex;align-items:center;gap:16px;min-height:68px;padding:12px 12px 12px 20px;border-radius:22px;background:#1d1b16;color:#f4f1ea;text-decoration:none;font-family:Inter,system-ui,sans-serif;box-shadow:0 1px 2px rgb(0 0 0/.06),0 8px 24px -12px rgb(0 0 0/.25);transition:transform .25s cubic-bezier(.16,1,.3,1),filter .25s}.ds-tile:hover{transform:translateY(-1px);filter:brightness(1.04)}.ds-tile:active{transform:scale(.985)}.ds-tile:focus-visible{outline:2px solid #1d1b16;outline-offset:3px}.ds-tile-text{flex:1;min-width:0}.ds-tile-title{display:block;font-size:15px;font-weight:600;line-height:1.25}.ds-tile-cap{display:block;margin-top:2px;font-size:13px;opacity:.65}.ds-tile-arrow{display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;background:color-mix(in oklab,currentColor 13%,transparent);transition:transform .3s}.ds-tile:hover .ds-tile-arrow{transform:translateX(2px)}"
+      "description": "Half-width silver picture tile; preview image shown whole over a blurred copy, or a large platform icon.",
+      "html": "<a class=\"ds-tile\" href=\"#\"><span class=\"ds-media\"><svg width=\"56\" height=\"56\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><circle cx=\"17.5\" cy=\"6.5\" r=\"1\" fill=\"currentColor\"/></svg></span><span class=\"ds-tt\">Instagram</span><span class=\"ds-cap\">instagram.com</span></a>",
+      "css": ".ds-tile{display:flex;flex-direction:column;width:180px;padding:8px;border-radius:28px;color:#0d0d0f;text-decoration:none;font-family:Inter,system-ui,sans-serif;background:linear-gradient(160deg,color-mix(in oklab,#d4d4d7 70%,white) 0%,#d4d4d7 45%,color-mix(in oklab,#d4d4d7 88%,black) 100%);box-shadow:inset 0 1px 0 rgb(255 255 255/.45),inset 0 0 0 1px rgb(255 255 255/.12),0 14px 30px -18px rgb(0 0 0/.55);transition:transform .25s cubic-bezier(.16,1,.3,1),filter .25s}.ds-tile:hover{transform:translateY(-1px);filter:brightness(1.04)}.ds-tile:active{transform:scale(.985)}.ds-tile:focus-visible{outline:2px solid #0d0d0f;outline-offset:3px}.ds-media{display:grid;place-items:center;aspect-ratio:1/.62}.ds-tt{padding:10px 6px 0;font-size:14px;font-weight:600;line-height:1.25}.ds-cap{padding:4px 6px 4px;font-size:12px;opacity:.75}"
     },
     {
-      "name": "Link Tile (outline)",
-      "kind": "button",
-      "refersTo": "link-tile",
-      "description": "Owner-selected outline style: transparent with a 1.5px tile-colour border.",
-      "html": "<a href=\"#\" class=\"ds-tile-o\"><span class=\"ds-tile-o-title\">Latest video</span><span class=\"ds-tile-o-cap\">youtube.com</span></a>",
-      "css": ".ds-tile-o{display:block;min-height:68px;padding:14px 20px;border-radius:9999px;border:1.5px solid #1d1b16;color:#1d1b16;background:transparent;text-decoration:none;font-family:Inter,system-ui,sans-serif;transition:transform .25s cubic-bezier(.16,1,.3,1)}.ds-tile-o:hover{transform:translateY(-1px)}.ds-tile-o:active{transform:scale(.985)}.ds-tile-o:focus-visible{outline:2px solid #1d1b16;outline-offset:3px}.ds-tile-o-title{display:block;font-size:15px;font-weight:600}.ds-tile-o-cap{display:block;font-size:13px;opacity:.65}"
+      "name": "Wide Tile with Open Pill",
+      "kind": "card",
+      "refersTo": "link-tile-wide",
+      "description": "Odd last tile spanning both columns: image right, Open pill left.",
+      "html": "<a class=\"ds-wide\" href=\"#\"><span class=\"ds-wtext\"><span class=\"ds-wt\">Order your OneTap card</span><span class=\"ds-wcap\">onetap-orpin.vercel.app</span><span class=\"ds-open\">Open</span></span><span class=\"ds-wimg\"></span></a>",
+      "css": ".ds-wide{display:flex;gap:12px;min-height:152px;width:370px;padding:8px;border-radius:28px;color:#0d0d0f;text-decoration:none;font-family:Inter,system-ui,sans-serif;background:linear-gradient(160deg,color-mix(in oklab,#d4d4d7 70%,white) 0%,#d4d4d7 45%,color-mix(in oklab,#d4d4d7 88%,black) 100%);box-shadow:inset 0 1px 0 rgb(255 255 255/.45),inset 0 0 0 1px rgb(255 255 255/.12),0 14px 30px -18px rgb(0 0 0/.55);transition:transform .25s cubic-bezier(.16,1,.3,1),filter .25s}.ds-wide:hover{transform:translateY(-1px);filter:brightness(1.04)}.ds-wide:active{transform:scale(.985)}.ds-wide:focus-visible{outline:2px solid #0d0d0f;outline-offset:3px}.ds-wtext{flex:1;display:flex;flex-direction:column;justify-content:center;padding:12px 0 12px 12px}.ds-wt{font-size:17px;font-weight:600;line-height:1.25}.ds-wcap{margin-top:4px;font-size:12px;opacity:.75}.ds-open{margin-top:12px;width:fit-content;padding:8px 16px;border-radius:9999px;background:#0d0d0f;color:#d4d4d7;font-size:13px;font-weight:600}.ds-wimg{width:42%;aspect-ratio:4/3;align-self:center;border-radius:20px;background:linear-gradient(135deg,#3a3a3d,#0d0d0f)}"
     },
     {
-      "name": "Link Tile (owner hard shadow)",
-      "kind": "button",
-      "refersTo": "link-tile",
-      "description": "Rendered only when the owner picks the Hard shadow style (Lime preset shown).",
-      "html": "<a href=\"#\" class=\"ds-tile-h\">My portfolio</a>",
-      "css": ".ds-tile-h{display:block;min-height:68px;padding:22px 20px;border-radius:10px;background:#fff;color:#1a2e05;border:2px solid #1a2e05;box-shadow:4px 4px 0 #1a2e05;font:600 15px 'JetBrains Mono',monospace;text-decoration:none;transition:transform .25s cubic-bezier(.16,1,.3,1)}.ds-tile-h:hover{transform:translateY(-1px)}.ds-tile-h:active{transform:scale(.985)}.ds-tile-h:focus-visible{outline:2px solid #1a2e05;outline-offset:3px}"
-    },
-    {
-      "name": "Contact Dock",
+      "name": "Action Dock",
       "kind": "nav",
       "refersTo": "dock",
-      "description": "Always-darkest floating pill: Save contact plus WhatsApp, Call and Share discs.",
-      "html": "<nav class=\"ds-dock\" aria-label=\"Contact\"><a href=\"#\" class=\"ds-dock-save\">Save contact</a><a href=\"#\" class=\"ds-dock-disc\" aria-label=\"Call\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11 11 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.6 3.6a1 1 0 0 1-.25 1z\"/></svg></a><button type=\"button\" class=\"ds-dock-disc\" aria-label=\"Share page\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><path d=\"m8.6 13.5 6.8 4M15.4 6.5l-6.8 4\" stroke=\"currentColor\" stroke-width=\"2\"/></svg></button></nav>",
-      "css": ".ds-dock{display:inline-flex;align-items:center;gap:4px;padding:6px;border-radius:9999px;background:color-mix(in oklab,#1d1b16 92%,transparent);color:#f4f1ea;backdrop-filter:blur(24px);box-shadow:inset 0 0 0 1px color-mix(in oklab,#f4f1ea 22%,transparent),0 22px 48px -12px rgb(0 0 0/.6),0 4px 10px rgb(0 0 0/.18);font-family:Inter,system-ui,sans-serif}.ds-dock-save{display:flex;align-items:center;height:48px;padding:0 20px 0 16px;border-radius:9999px;background:#f4f1ea;color:#1d1b16;font-size:14px;font-weight:600;text-decoration:none;transition:transform .2s}.ds-dock-save:active{transform:scale(.95)}.ds-dock-disc{display:grid;place-items:center;width:48px;height:48px;border:0;border-radius:9999px;background:transparent;color:inherit;cursor:pointer;transition:background-color .2s,transform .2s}.ds-dock-disc:hover{background:color-mix(in oklab,currentColor 14%,transparent)}.ds-dock-disc:active{transform:scale(.9)}.ds-dock a:focus-visible,.ds-dock button:focus-visible{outline:2px solid #f4f1ea;outline-offset:3px}"
+      "description": "Floating black pill of 52px round buttons: Call (highlighted), Email, QR, Share.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"More ways to connect\"><a class=\"ds-dd ds-hi\" href=\"#\" aria-label=\"Call\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z\"/></svg></a><a class=\"ds-dd\" href=\"#\" aria-label=\"Email\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v.4l-10 6.2L2 6.4zm0 2.8V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8.8l-10 6.2z\"/></svg></a><button class=\"ds-dd\" aria-label=\"Show QR code\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M3 3h8v8H3zm2 2v4h4V5zm8-2h8v8h-8zm2 2v4h4V5zM3 13h8v8H3zm2 2v4h4v-4zm8-2h3v3h-3zm5 0h3v3h-3zm-5 5h3v3h-3zm5 0h3v3h-3z\"/></svg></button><button class=\"ds-dd\" aria-label=\"Share page\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><path d=\"M8.6 13.5l6.8 4M15.4 6.5l-6.8 4\" stroke=\"currentColor\" stroke-width=\"2\"/></svg></button></nav>",
+      "css": ".ds-dock{display:inline-flex;gap:8px;padding:8px;border-radius:9999px;color:#c9c9cc;background:color-mix(in oklab,#0d0d0f 92%,transparent);backdrop-filter:blur(24px);box-shadow:inset 0 0 0 1px color-mix(in oklab,#c9c9cc 18%,transparent),0 22px 48px -12px rgb(0 0 0/.6),0 4px 10px rgb(0 0 0/.18)}.ds-dd{display:grid;place-items:center;width:52px;height:52px;border:0;border-radius:9999px;color:inherit;cursor:pointer;background:color-mix(in oklab,#c9c9cc 13%,transparent);box-shadow:inset 0 1px 0 color-mix(in oklab,#c9c9cc 18%,transparent);transition:background-color .2s,transform .2s}.ds-dd.ds-hi{background:#c9c9cc;color:#0d0d0f;box-shadow:0 4px 14px -4px rgb(0 0 0/.5)}.ds-dd:active{transform:scale(.9)}.ds-dd:focus-visible{outline:2px solid #c9c9cc;outline-offset:3px}"
+    },
+    {
+      "name": "QR Sheet",
+      "kind": "custom",
+      "refersTo": "qr-sheet",
+      "description": "White modal with the owner's name and a locally generated QR code of the page.",
+      "html": "<div class=\"ds-qr\"><button class=\"ds-x\" aria-label=\"Close\">&#215;</button><p class=\"ds-qt\">OneTap</p><p class=\"ds-qs\">Scan to open this page</p><div class=\"ds-code\"></div></div>",
+      "css": ".ds-qr{position:relative;width:min(88vw,340px);padding:28px 24px 24px;border-radius:30px;background:#fff;color:#0d0d0f;text-align:center;font-family:Inter,system-ui,sans-serif;box-shadow:0 25px 50px -12px rgb(0 0 0/.25)}.ds-x{position:absolute;top:12px;right:12px;width:40px;height:40px;border:0;border-radius:9999px;background:transparent;color:rgb(13 13 15/.7);font-size:22px;cursor:pointer}.ds-x:hover{background:rgb(0 0 0/.05)}.ds-x:focus-visible{outline:2px solid #0d0d0f;outline-offset:3px}.ds-qt{margin:0;font-size:17px;font-weight:600}.ds-qs{margin:4px 0 0;font-size:13px;color:rgb(13 13 15/.65)}.ds-code{margin:20px auto 0;width:200px;aspect-ratio:1;background:repeating-conic-gradient(#0d0d0f 0 25%,#fff 0 50%) 0 0/20px 20px}"
     }
   ],
   "narrative": {
     "northStar": "The Card in Your Hand",
-    "overview": "The public profile page is the digital twin of the NFC card that was just tapped: a single 480px column of rounded, physical-feeling cards stacked from top to bottom. A photo card (or, without a cover, a short name card) says who this is; an inverse \"ink\" panel overlaps its bottom edge with the bio and social discs; theme-coloured link tiles follow; and an always-dark pill dock floats at the bottom holding Save contact, WhatsApp, Call and Share. Every colour, the font and the tile shape come from the owner's theme, so the system is a set of relationships between theme roles, not a fixed palette.\n\nThe density is phone-first and calm: one column, generous 32px corners, 10px gaps between stacked pieces, nothing that needs scrolling to find the contact actions. Motion is a single load sequence (the photo settles, the panel and tiles rise in order, the dock arrives last) and then the page holds still.\n\nThis system covers the public profile page only (`ProfilePage`, `ActionDock`, the `.profile` block in `globals.css`). The dashboard and marketing pages keep their older, separate look (violet accent, `btn`/`card`/`input` utilities) and are not governed by this file.",
+    "overview": "The page is one premium object: a dark, top-lit profile card that answers who this is and how to reach them, a two-column bento of metallic picture tiles that answers where to go next, and a black pill of round buttons floating near the thumb. It is built for the seconds after an NFC tap, on a phone, and it refuses the category default of a centred avatar over a column of identical pill buttons.\n\nThe default look is the **Chrome** preset: monochrome metal, a silver-to-graphite gradient ground, near-black ink, silver tiles. Chrome is a default, not a requirement. Every owner theme (background solid or gradient, text colour, button colour, fill / outline / hard-shadow style, square / rounded / pill shape, font) renders the same structure, and the colour helpers in `src/lib/themes.ts` (`luminance`, `similarColors`, `contrast`, `bestOn`) choose card ink, dock polarity and footer colour so any theme stays legible.\n\nDensity is tight and tactile: 12px gutters, 10px gaps, generous corner radii, depth from sheens and soft drop shadows rather than borders.\n\nThis system governs the public profile page only: `ProfilePage`, `ActionDock`, `ContactActions` and the `.profile` block at the end of `globals.css`, including the same component inside the dashboard's phone preview. The dashboard and marketing pages keep their older, separate look (warm off-white ground, violet `#5b3df5` accent, the `btn` / `card` / `input` utilities in `globals.css`) and are not governed by this file.",
     "keyCharacteristics": [
-      "Stacked rounded cards, one column, max 480px wide.",
-      "The ink panel inverts the theme: theme text colour becomes its surface.",
-      "Link tiles carry the owner's chosen shape and style (fill, outline or hard shadow).",
-      "The contact dock is always the darkest element on the page, whatever the theme.",
-      "One orchestrated load sequence; static under reduced motion."
+      "One dark profile card, one tile grid, one floating dock; nothing else on the page except the OneTap wordmark footer.",
+      "One control per action across card, dock and tiles.",
+      "Owner theme drives every colour, radius and font; the helpers guarantee contrast.",
+      "Picture tiles show the linked site's own preview image whole, or a large platform icon.",
+      "Load sequence: card and tiles rise in order, the dock floats in; reduced motion is fully static."
     ],
     "rules": [
       {
-        "name": "The Inverse Ink Rule",
-        "body": "The panel takes the theme's text colour as its surface and the ground colour as its ink. If filled tiles are already that ink colour (similar within an RGB distance of 48), the panel switches to the ground tinted 10% toward the ink with a 1px inset hairline, so panel and tiles never merge into one slab.",
+        "name": "The Derived Ink Rule",
+        "body": "No surface hard-codes its text colour. Card ink is the theme colour that best contrasts the card (`bestOn`), accepted only at 4.5:1 or better, else white or `#0d0d0f`. The footer uses `bestOn` against the colour the page actually ends on. The dock is always the darker of `text` and `bg`, whichever way round the theme is.",
         "section": "colors"
       },
       {
-        "name": "The Darkest Dock Rule",
-        "body": "The dock compares ink and ground by WCAG luminance and always takes the darker one as its surface (at 92% opacity with backdrop blur) and the lighter as its content. On a dark theme it uses the ground; on a light theme, the ink.",
+        "name": "The No-Merge Rule",
+        "body": "When filled tiles are already the ink colour (`similarColors(buttonBg, text)`), the card switches to a page-colour surface tinted 12% toward ink, so card and tiles never fuse into one slab.",
         "section": "colors"
       },
       {
-        "name": "The Derived Tint Rule",
-        "body": "Secondary tints are mixed from the theme in OKLCH (`color-mix(in oklab, …)`), never introduced as new hues: bio text is panel ink 82% toward the panel surface, ring outlines are ink at 40-70%, arrow discs are the tile's current colour at 13%.",
-        "section": "colors"
-      },
-      {
-        "name": "The One Family Rule",
-        "body": "The owner's chosen font sets every line on the page, including the dock and the OneTap footer mark. Do not introduce a second display face.",
+        "name": "The Owner's Font Rule",
+        "body": "Every text element inherits the owner's chosen family; never set a family on an individual element of the profile page.",
         "section": "typography"
       },
       {
-        "name": "The Owner's Shadow Rule",
-        "body": "The hard offset shadow is a theme option the owner chooses, and it is honoured exactly when chosen. The system never applies it by default or to any other element.",
+        "name": "The Odd Tile Rule",
+        "body": "An odd last tile spans both columns: image on the right at 42% width (4:3), title, caption and an \"Open\" pill on the left, at least 152px tall. Never leave a lone half-width tile.",
+        "section": "layout"
+      },
+      {
+        "name": "The Top-Lit Rule",
+        "body": "Filled surfaces carry a vertical or 160deg gradient that starts lighter (mixed about 30% toward white) and ends slightly darker (about 10% toward black), plus a 1px inset white highlight on the top edge. That is the metal.",
         "section": "elevation"
+      },
+      {
+        "name": "The One Control Rule",
+        "body": "Each action has exactly one control. The card pills carry Save contact and WhatsApp. The dock carries only Call, Email, QR code and Share. WhatsApp (when there is a number) and Email are removed from the card's social icons, and a wa.me link tile to the same number is hidden.",
+        "section": "components"
       }
     ],
     "dos": [
-      "**Do** derive every colour on the page from the four theme roles, mixing tints in OKLCH.",
-      "**Do** keep the hero and ink panel at 32px corners regardless of the owner's tile shape.",
-      "**Do** keep the dock the darkest element on the page, chosen by luminance, never by which theme role it is.",
-      "**Do** make the no-cover hero transparent over the page background so the name keeps its contrast on gradient themes.",
-      "**Do** keep the OneTap mark to the small footer link (12px, 60% opacity); the owner's identity leads."
+      "Do keep the page to three objects: profile card, two-column tile grid, floating dock.",
+      "Do derive every text colour on the card, dock and footer through `bestOn` / `contrast` / `luminance`, and keep card ink at 4.5:1 or better.",
+      "Do keep one control per action: Save contact and WhatsApp on the card, Call / Email / QR / Share in the dock, highlight on the first dock item.",
+      "Do show preview images whole over their own blurred copy, and fall back to a large platform icon when there is no usable preview.",
+      "Do span an odd last tile across both columns with its image on the right and an \"Open\" pill.",
+      "Do let tile radius follow the owner's button shape (14 / 28 / 34px) and keep the card at 34px.",
+      "Do gate every load animation behind `prefers-reduced-motion: no-preference`."
     ],
     "donts": [
-      "**Don't** fall back to a centred avatar above a column of identical pill buttons; the stacked-card layout replaces it.",
-      "**Don't** apply the hard offset shadow anywhere except tiles whose owner picked the \"Hard shadow\" style.",
-      "**Don't** add a second typeface or any label above the name; the hero carries only the name, the tick and the handle.",
-      "**Don't** let the ink panel and filled tiles merge; apply The Inverse Ink Rule's tinted fallback.",
-      "**Don't** carry the dashboard's violet accent or its `btn`/`card` utilities onto the profile page."
+      "Don't stack the links as a single column of identical pill buttons.",
+      "Don't repeat an action: no WhatsApp or Email social icon alongside the pill and dock, no wa.me tile to the page's own number, no Save contact in the dock.",
+      "Don't crop a preview image to fill its frame; those images carry their own text.",
+      "Don't let card and filled tiles share a colour; switch the card surface instead.",
+      "Don't show stats, follower counts or a verified tick the site owner hasn't approved.",
+      "Don't bring the dashboard's violet accent or its `btn` / `card` / `input` utilities onto the profile page, or this page's card, tile and dock language into the dashboard.",
+      "Don't use the hard offset shadow outside the owner-selected \"Hard shadow\" button style."
     ]
   }
 }

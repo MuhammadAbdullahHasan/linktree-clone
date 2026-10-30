@@ -70,9 +70,10 @@ export default function ProfilePage({ data, preview = false }: Props) {
   // Email has a dock button, so neither repeats among the social icons.
   const socials = data.socials.filter((s) => !(s.platform === "whatsapp" && phone) && s.platform !== "email");
   // A link tile to the same WhatsApp number would be a third copy of the card pill and dock button.
-  const links = phone
-    ? data.links.filter((l) => contactPhone([], [{ url: l.url }]) !== phone)
-    : data.links;
+  // The same goes for a mailto: tile to the address the page already offers as a button.
+  const links = data.links.filter(
+    (l) => !(phone && contactPhone([], [{ url: l.url }]) === phone) && !(email && l.url === `mailto:${email}`),
+  );
   const wideIndex = links.length % 2 === 1 ? links.length - 1 : -1;
   const radius = TILE_RADIUS[theme.buttonShape];
   // The footer sits at the bottom of the page, where a gradient has reached its second colour.
@@ -267,7 +268,8 @@ export default function ProfilePage({ data, preview = false }: Props) {
         username={data.username}
         name={contactName}
         phone={phone}
-        email={email}
+        // Without a phone, the card's second pill is already Email.
+        email={phone ? email : null}
         ink={theme.text}
         paper={theme.bg}
       />
