@@ -31,7 +31,7 @@ export const getPublicPage = cache(async (username: string) => {
     profileId: profile.id,
     page: toPageData(
       profile,
-      links.filter((l) => l.isActive).map(({ id, title, url }) => ({ id, title, url })),
+      links.filter((l) => l.isActive).map(({ id, title, url, imageUrl }) => ({ id, title, url, imageUrl })),
       socials.map(({ id, platform, url }) => ({ id, platform, url })),
     ),
   };

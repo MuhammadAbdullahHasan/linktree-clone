@@ -71,6 +71,12 @@ export const links = sqliteTable(
     url: text("url").notNull(),
     position: integer("position").notNull().default(0),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+    /** The linked site's own preview image (og:image), fetched when the link is saved. */
+    image: text("image"),
+    /** A stored copy of that image, so tiles don't break when the site's own URL expires. */
+    imageData: blob("image_data", { mode: "buffer" }),
+    imageType: text("image_type"),
+    imageCheckedAt: integer("image_checked_at", { mode: "timestamp_ms" }),
     createdAt: createdAt(),
   },
   (t) => [index("links_user_position_idx").on(t.userId, t.position)],

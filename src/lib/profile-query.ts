@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { db, links, profiles, socialLinks } from "@/db";
-import type { Profile } from "@/lib/types";
+import type { Link, Profile } from "@/lib/types";
 
 /** Profile columns without the avatar bytes. */
 export const profileColumns = {
@@ -54,7 +54,26 @@ export const linkColumns = {
   url: links.url,
   position: links.position,
   isActive: links.isActive,
+  imageType: links.imageType,
+  imageCheckedAt: links.imageCheckedAt,
 };
+
+/** Turns a selected link row into a Link, with the address of its stored preview image. */
+export function toLink(row: {
+  id: string;
+  title: string;
+  url: string;
+  position: number;
+  isActive: boolean;
+  imageType: string | null;
+  imageCheckedAt: Date | null;
+}): Link {
+  const { imageType, imageCheckedAt, ...link } = row;
+  return {
+    ...link,
+    imageUrl: imageType && imageCheckedAt ? `/link-image/${row.id}?v=${imageCheckedAt.getTime()}` : null,
+  };
+}
 
 export const socialColumns = {
   id: socialLinks.id,
@@ -63,12 +82,13 @@ export const socialColumns = {
   position: socialLinks.position,
 };
 
-export function linksOf(userId: string) {
-  return db
+export async function linksOf(userId: string) {
+  const rows = await db
     .select(linkColumns)
     .from(links)
     .where(eq(links.userId, userId))
     .orderBy(asc(links.position), asc(links.createdAt));
+  return rows.map(toLink);
 }
 
 export function socialsOf(userId: string) {

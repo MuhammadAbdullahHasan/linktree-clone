@@ -15,9 +15,9 @@ const DEMO: PageData = {
   verified: false,
   theme: THEME_PRESETS.find((p) => p.id === "sunset")!.theme,
   links: [
-    { id: "1", title: "Shop the new collection", url: "#" },
-    { id: "2", title: "Studio workshop tickets", url: "#" },
-    { id: "3", title: "Watch: throwing a vase in 60s", url: "#" },
+    { id: "1", title: "Shop the new collection", url: "#", imageUrl: null },
+    { id: "2", title: "Studio workshop tickets", url: "#", imageUrl: null },
+    { id: "3", title: "Watch: throwing a vase in 60s", url: "#", imageUrl: null },
   ],
   socials: [
     { id: "a", platform: "instagram", url: "#" },

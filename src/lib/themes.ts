@@ -25,6 +25,14 @@ export type Theme = z.infer<typeof themeSchema>;
 
 export const THEME_PRESETS: { id: string; name: string; theme: Theme }[] = [
   {
+    id: "chrome",
+    name: "Chrome",
+    theme: {
+      bgStyle: "gradient", bg: "#c9c9cc", bg2: "#3a3a3d", text: "#0d0d0f",
+      buttonBg: "#d4d4d7", buttonText: "#0d0d0f", buttonShape: "rounded", buttonStyle: "fill", font: "sans",
+    },
+  },
+  {
     id: "paper",
     name: "Paper",
     theme: {
@@ -120,4 +128,15 @@ export function luminance(hex: string) {
 export function similarColors(a: string, b: string) {
   const [x, y] = [rgb(a), rgb(b)];
   return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]) < 48;
+}
+
+/** WCAG contrast ratio between two #rrggbb colours (1 to 21). */
+export function contrast(a: string, b: string) {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/** Whichever candidate colour reads best on `surface`. */
+export function bestOn(surface: string, candidates: string[]) {
+  return candidates.reduce((best, c) => (contrast(c, surface) > contrast(best, surface) ? c : best));
 }

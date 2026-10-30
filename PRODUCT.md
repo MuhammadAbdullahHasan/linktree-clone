@@ -31,7 +31,8 @@ The digital half of a physical OneTap card. The page is designed for the moment 
 - Per-owner themes: presets plus custom background (solid or gradient), text colour, button colour and style (fill, outline or hard shadow), shape and font. Every redesign must keep these themes working.
 - Links go through /go/<id> for click analytics. Views are counted with a beacon.
 - Stack: Next.js 15, Tailwind v4, SQLite/Turso. Deployed on Vercel in bom1.
-- Owners can upload an optional cover photo, which becomes the page's hero.
+- Owners can upload an optional cover photo. It sits behind the profile card.
+- Link tiles show a stored copy of the linked site's own preview image (og:image), fetched in the background when a link is saved. Thumbnails under 6 KB fall back to the platform icon. The fetcher refuses private and internal network addresses.
 - The verified tick appears only on pages the site owner approves, using a flag in the database. There is no self-serve verification.
 
 ## Brand Commitments

@@ -105,3 +105,34 @@ export function linkCaption(url: string): string {
     return "";
   }
 }
+
+const HOST_PLATFORMS: [RegExp, string][] = [
+  [/(^|\.)instagram\.com$/, "instagram"],
+  [/(^|\.)(youtube\.com|youtu\.be)$/, "youtube"],
+  [/(^|\.)(wa\.me|whatsapp\.com)$/, "whatsapp"],
+  [/(^|\.)tiktok\.com$/, "tiktok"],
+  [/(^|\.)(facebook\.com|fb\.com|fb\.me)$/, "facebook"],
+  [/(^|\.)(x\.com|twitter\.com)$/, "x"],
+  [/(^|\.)linkedin\.com$/, "linkedin"],
+  [/(^|\.)(t\.me|telegram\.me)$/, "telegram"],
+  [/(^|\.)threads\.(net|com)$/, "threads"],
+  [/(^|\.)snapchat\.com$/, "snapchat"],
+  [/(^|\.)pinterest\.com$/, "pinterest"],
+  [/(^|\.)spotify\.com$/, "spotify"],
+  [/(^|\.)github\.com$/, "github"],
+  [/(^|\.)(discord\.gg|discord\.com)$/, "discord"],
+  [/(^|\.)twitch\.tv$/, "twitch"],
+];
+
+/** The platform a link points to (for its tile icon); "website" when it's none of the known ones. */
+export function platformForUrl(url: string): SocialPlatform {
+  if (url.startsWith("mailto:")) return SOCIALS_BY_ID.get("email")!;
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    const match = HOST_PLATFORMS.find(([pattern]) => pattern.test(host));
+    if (match) return SOCIALS_BY_ID.get(match[1])!;
+  } catch {
+    // Not a parseable URL; fall through to the generic icon.
+  }
+  return SOCIALS_BY_ID.get("website")!;
+}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { FaCheck, FaPhone, FaShareNodes, FaUserPlus, FaWhatsapp } from "react-icons/fa6";
+import { useSaveContactHref } from "@/components/ContactActions";
 import { luminance } from "@/lib/themes";
 
 type Props = {
@@ -15,31 +16,12 @@ type Props = {
   paper: string;
 };
 
-/**
- * Floating contact dock: Save contact, WhatsApp, Call and Share.
- * Save contact links to the vCard (iPhone shows it as a contact card); on Android it opens the
- * Contacts app's "Create contact" screen instead, with the vCard as fallback.
- */
+/** Floating dock of round buttons: Save contact (highlighted), WhatsApp, Call and Share. */
 export default function ActionDock({ username, name, phone, email, whatsapp, ink, paper }: Props) {
   // The dock is always the dark element of the page, whichever way round the theme is.
   const [dark, light] = luminance(ink) <= luminance(paper) ? [ink, paper] : [paper, ink];
-  const vcardPath = `/${username}/vcard`;
-  const [saveHref, setSaveHref] = useState(vcardPath);
+  const saveHref = useSaveContactHref(username, name, phone, email);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!phone || !/Android/i.test(navigator.userAgent)) return;
-    const extras = [
-      `S.name=${encodeURIComponent(name)}`,
-      `S.phone=${encodeURIComponent(phone)}`,
-      "i.phone_type=2", // mobile
-      email && `S.email=${encodeURIComponent(email)}`,
-      `S.browser_fallback_url=${encodeURIComponent(new URL(vcardPath, location.href).href)}`,
-    ].filter(Boolean);
-    setSaveHref(
-      `intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/raw_contact;${extras.join(";")};end`,
-    );
-  }, [vcardPath, name, phone, email]);
 
   async function share() {
     const url = new URL(`/${username}`, location.href).href;
@@ -57,45 +39,55 @@ export default function ActionDock({ username, name, phone, email, whatsapp, ink
   }
 
   const disc =
-    "grid h-12 w-12 place-items-center rounded-full transition-[background-color,transform] duration-200 hover:bg-[color-mix(in_oklab,currentColor_14%,transparent)] active:scale-90";
+    "grid h-[52px] w-[52px] place-items-center rounded-full transition-[background-color,transform] duration-200 active:scale-90";
+  const quiet: CSSProperties = {
+    background: `color-mix(in oklab, ${light} 13%, transparent)`,
+    boxShadow: `inset 0 1px 0 color-mix(in oklab, ${light} 18%, transparent)`,
+  };
 
   return (
-    <div className="@container pointer-events-none sticky bottom-0 z-30 flex justify-center px-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
+    <div className="pointer-events-none sticky bottom-0 z-30 flex justify-center px-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
       <nav
         aria-label="Contact"
-        className="pf-dock pointer-events-auto flex items-center gap-1 rounded-full p-1.5 backdrop-blur-xl"
-        style={{
-          background: `color-mix(in oklab, ${dark} 92%, transparent)`,
-          color: light,
-          "--pf-focus": light,
-          // Hairline in the light colour so the dock separates from dark tiles behind it.
-          boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${light} 22%, transparent), 0 22px 48px -12px rgb(0 0 0 / 0.6), 0 4px 10px rgb(0 0 0 / 0.18)`,
-        } as React.CSSProperties}
+        className="pf-dock pointer-events-auto flex items-center gap-2 rounded-full p-2 backdrop-blur-xl"
+        style={
+          {
+            background: `color-mix(in oklab, ${dark} 92%, transparent)`,
+            color: light,
+            "--pf-focus": light,
+            // Hairline in the light colour so the dock separates from dark tiles behind it.
+            boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${light} 18%, transparent), 0 22px 48px -12px rgb(0 0 0 / 0.6), 0 4px 10px rgb(0 0 0 / 0.18)`,
+          } as CSSProperties
+        }
       >
         {phone && (
           <a
             href={saveHref}
             aria-label="Save contact"
-            className="flex h-12 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-transform duration-200 active:scale-95 @min-[330px]:pr-5"
-            style={{ background: light, color: dark }}
+            className={disc}
+            style={{ background: light, color: dark, boxShadow: "0 4px 14px -4px rgb(0 0 0 / 0.5)" }}
           >
-            <FaUserPlus aria-hidden size={16} />
-            {/* Narrow frames (the dashboard preview) show the icon alone. */}
-            <span className="hidden @min-[330px]:inline">Save contact</span>
+            <FaUserPlus size={19} />
           </a>
         )}
         {whatsapp && (
-          <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className={disc}>
-            <FaWhatsapp size={20} />
+          <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className={disc} style={quiet}>
+            <FaWhatsapp size={21} />
           </a>
         )}
         {phone && (
-          <a href={`tel:${phone}`} aria-label="Call" className={disc}>
-            <FaPhone size={16} />
+          <a href={`tel:${phone}`} aria-label="Call" className={disc} style={quiet}>
+            <FaPhone size={17} />
           </a>
         )}
-        <button type="button" onClick={share} aria-label={copied ? "Link copied" : "Share page"} className={disc}>
-          {copied ? <FaCheck size={16} /> : <FaShareNodes size={17} />}
+        <button
+          type="button"
+          onClick={share}
+          aria-label={copied ? "Link copied" : "Share page"}
+          className={disc}
+          style={phone ? quiet : { background: light, color: dark }}
+        >
+          {copied ? <FaCheck size={17} /> : <FaShareNodes size={18} />}
         </button>
         <span aria-live="polite" className="sr-only">
           {copied ? "Link copied" : ""}

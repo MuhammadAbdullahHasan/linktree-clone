@@ -1,10 +1,12 @@
 "use server";
 
 import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { after } from "next/server";
 import { z } from "zod";
 import { db, links, profiles, socialLinks } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
-import { avatarUrlFor, coverUrlFor, linkColumns, socialColumns } from "@/lib/profile-query";
+import { refreshLinkImage } from "@/lib/link-preview";
+import { avatarUrlFor, coverUrlFor, linkColumns, socialColumns, toLink } from "@/lib/profile-query";
 import { socialInputToUrl, SOCIALS_BY_ID } from "@/lib/socials";
 import { themeSchema, type Theme } from "@/lib/themes";
 import type { ActionResult, Link, SocialLink } from "@/lib/types";
@@ -75,7 +77,8 @@ export async function createLink(title: string, url: string): Promise<ActionResu
     .insert(links)
     .values({ userId, title: parsedTitle.data, url: cleanUrl, position: (first?.position ?? 1) - 1 })
     .returning(linkColumns);
-  return { ok: true, data: link };
+  after(() => refreshLinkImage(link.id, link.url));
+  return { ok: true, data: toLink(link) };
 }
 
 export async function updateLink(
@@ -103,7 +106,8 @@ export async function updateLink(
     .where(and(eq(links.id, id), eq(links.userId, userId)))
     .returning(linkColumns);
   if (!link) return fail("Couldn't save link");
-  return { ok: true, data: link };
+  if (update.url) after(() => refreshLinkImage(link.id, link.url));
+  return { ok: true, data: toLink(link) };
 }
 
 export async function deleteLink(id: string): Promise<ActionResult> {

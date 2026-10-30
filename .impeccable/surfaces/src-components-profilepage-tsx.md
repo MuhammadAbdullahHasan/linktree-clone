@@ -13,16 +13,16 @@ Audience and job: a stranger standing in front of the card owner, phone in hand.
 
 ## Direction contract
 
-THESIS: the page as a stack of physical cards, the digital twin of the NFC card just tapped. It refuses the category default of a centred avatar over a column of identical pill buttons.
+THESIS: the page as one premium object, a glossy profile card over a bento of silver link tiles and a floating round-button dock. It refuses the category default of a centred avatar over a column of identical pill buttons.
 
-OWN-WORLD: a tall photo card with 32px corners and the name set large over a dark scrim. Beneath it an inverse "ink" panel uses the theme's text colour as its surface: ringed avatar, bio, circular outline social buttons. Link tiles follow the theme's button colours, each with a domain line and an arrow disc. A dark floating dock holds the actions. On desktop the cover photo blurs behind as the backdrop.
+OWN-WORLD: monochrome metal by default (the "Chrome" preset), and any owner theme renders the same structure. A dark "ink" profile card with a top-lit sheen, a centred 112px avatar in a thick light ring, name with an optional verified tick, @handle, the bio as a tagline, and two outline pills (Save contact, WhatsApp). Link tiles sit in two columns with a metallic sheen, each showing the stored copy of the site's own preview image or a large platform icon. An odd last tile spans the full width with its image on the right and an "Open" pill. The dock is a black pill of round buttons with Save contact highlighted.
 
-STORY: who this is (photo and name), what they do (bio), how to reach them (dock), and where to go next (tiles).
+STORY: who this is (ringed avatar and name), how to reach them (pills and dock), and where to go next (picture tiles).
 
-FIRST VIEWPORT: with a cover, the hero card fills about 56% of the height, with the name, tick and @handle line at its bottom left. Without a cover, the hero is a short name card in the theme ground with a sharp ringed avatar above the name. The ink panel overlaps the hero's bottom edge by 28px. The dock is pinned 16px above the bottom: Save contact as a labelled primary pill, then WhatsApp, Call and Share discs.
+FIRST VIEWPORT: on a 390px phone, the profile card takes about the top half, the first row of tiles follows, and the dock is pinned 16px above the bottom.
 
-FORM: user-pinned reference (stacked rounded cards, ink profile panel, floating pill dock). Position 1 of 1, pinned by the user's reference image. No concept-seed roll was run, because a pinned direction beats the roll. seed: none (pinned by user reference, no roll run)
+FORM: user-pinned reference (dark profile card, outline pills, silver bento tiles, round-button dock). Position 1 of 1, pinned by the user's reference image. No concept-seed roll was run, because a pinned direction beats the roll. seed: none (pinned by user reference, no roll run)
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
-Signature interaction: on load the hero photo settles (scale 1.06 to 1, unblur) while the ink panel and tiles rise into place in a single orchestrated sequence. Pressing the dock gives tactile feedback. Reduced motion shows everything static.
+Signature interaction: the card and tiles rise into place in sequence on load and the dock floats in. Reduced motion shows everything static.

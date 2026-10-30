@@ -17,6 +17,8 @@ export type Link = {
   url: string;
   position: number;
   isActive: boolean;
+  /** Stored copy of the linked site's preview image, or null. */
+  imageUrl: string | null;
 };
 
 export type SocialLink = {
@@ -35,7 +37,7 @@ export type PageData = {
   coverUrl: string | null;
   verified: boolean;
   theme: Theme;
-  links: Pick<Link, "id" | "title" | "url">[];
+  links: Pick<Link, "id" | "title" | "url" | "imageUrl">[];
   socials: Pick<SocialLink, "id" | "platform" | "url">[];
 };
 

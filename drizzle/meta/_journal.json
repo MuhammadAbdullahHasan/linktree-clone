@@ -15,6 +15,20 @@
       "when": 1793264190421,
       "tag": "0001_cover_and_verified",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793367900703,
+      "tag": "0002_link_images",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1793368032577,
+      "tag": "0003_link_image_data",
+      "breakpoints": true
     }
   ]
 }
