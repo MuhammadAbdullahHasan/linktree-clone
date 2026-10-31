@@ -54,6 +54,10 @@ export const profiles = sqliteTable("profiles", {
   cover: blob("cover", { mode: "buffer" }),
   coverType: text("cover_type"),
   coverVersion: integer("cover_version").notNull().default(0),
+  /** Full-page background photo, used when the theme's background style is "image". */
+  bgImage: blob("bg_image", { mode: "buffer" }),
+  bgImageType: text("bg_image_type"),
+  bgImageVersion: integer("bg_image_version").notNull().default(0),
   // Set by hand by the site owner; there is no self-serve way to become verified.
   verified: integer("verified", { mode: "boolean" }).notNull().default(false),
   theme: text("theme", { mode: "json" }).notNull().default({}),

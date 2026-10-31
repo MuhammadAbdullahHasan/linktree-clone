@@ -7,6 +7,7 @@ export type Profile = {
   bio: string | null;
   avatarUrl: string | null;
   coverUrl: string | null;
+  bgImageUrl: string | null;
   verified: boolean;
   theme: unknown;
 };
@@ -35,6 +36,7 @@ export type PageData = {
   bio: string | null;
   avatarUrl: string | null;
   coverUrl: string | null;
+  bgImageUrl: string | null;
   verified: boolean;
   theme: Theme;
   links: Pick<Link, "id" | "title" | "url" | "imageUrl">[];

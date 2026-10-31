@@ -1,24 +1,32 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { FaCamera, FaTrash } from "react-icons/fa6";
+import { FaCamera, FaPhone, FaQrcode, FaShareNodes, FaTrash } from "react-icons/fa6";
 import {
   deleteSocial,
   removeAvatar,
+  removeBackground,
   removeCover,
   saveSocial,
   updateProfile,
   updateTheme,
   uploadAvatar,
+  uploadBackground,
   uploadCover,
 } from "@/app/dashboard/actions";
 import PhonePreview from "@/components/PhonePreview";
 import { SOCIAL_PLATFORMS, SOCIALS_BY_ID } from "@/lib/socials";
-import { FONTS, THEME_PRESETS, type Theme } from "@/lib/themes";
+import { contrast, dockColors, FONTS, PRESET_KEYS, THEME_PRESETS, type FontKey, type Theme } from "@/lib/themes";
 import type { Link, PageData, SocialLink } from "@/lib/types";
 import { useAutosave, type SaveStatus } from "@/lib/use-autosave";
 
-type ProfileFields = { displayName: string; bio: string; avatarUrl: string | null; coverUrl: string | null };
+type ProfileFields = {
+  displayName: string;
+  bio: string;
+  avatarUrl: string | null;
+  coverUrl: string | null;
+  bgImageUrl: string | null;
+};
 
 type Props = {
   username: string;
@@ -49,6 +57,7 @@ export default function AppearanceEditor(props: Props) {
     bio: profile.bio.trim() || null,
     avatarUrl: profile.avatarUrl,
     coverUrl: profile.coverUrl,
+    bgImageUrl: profile.bgImageUrl,
     verified: props.verified,
     theme,
     links: props.links,
@@ -99,15 +108,18 @@ export default function AppearanceEditor(props: Props) {
         </Section>
 
         <Section title="Theme" status={themeSave.status} error={themeSave.error}>
+          <p className="-mt-2 mb-5 text-sm text-neutral-500">
+            Start from a preset, then make it yours below. Presets change colours and style; your layout and other choices stay.
+          </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {THEME_PRESETS.map((preset) => {
               const t = preset.theme;
-              const selected = JSON.stringify(t) === JSON.stringify(theme);
+              const selected = PRESET_KEYS.every((k) => t[k] === theme[k]);
               return (
                 <button
                   key={preset.id}
                   type="button"
-                  onClick={() => setTheme(t)}
+                  onClick={() => setTheme((cur) => ({ ...cur, ...pickPreset(t) }))}
                   aria-pressed={selected}
                   className={`overflow-hidden rounded-xl border-2 text-left transition ${
                     selected ? "border-accent" : "border-transparent hover:border-neutral-300"
@@ -115,9 +127,7 @@ export default function AppearanceEditor(props: Props) {
                 >
                   <div
                     className="flex h-24 flex-col items-center justify-center gap-1.5 px-4"
-                    style={{
-                      background: t.bgStyle === "gradient" ? `linear-gradient(165deg, ${t.bg}, ${t.bg2})` : t.bg,
-                    }}
+                    style={{ background: t.bgStyle === "solid" ? t.bg : `linear-gradient(165deg, ${t.bg}, ${t.bg2})` }}
                   >
                     {[0, 1].map((i) => (
                       <span
@@ -126,7 +136,7 @@ export default function AppearanceEditor(props: Props) {
                         style={{
                           background: t.buttonStyle === "outline" ? "transparent" : t.buttonBg,
                           border: t.buttonStyle === "outline" ? `1.5px solid ${t.buttonBg}` : undefined,
-                          borderRadius: t.buttonShape === "pill" ? 999 : t.buttonShape === "rounded" ? 5 : 2,
+                          borderRadius: Math.round(t.radius / 5),
                         }}
                       />
                     ))}
@@ -137,43 +147,47 @@ export default function AppearanceEditor(props: Props) {
             })}
           </div>
 
-          <h3 className="mt-8 text-sm font-semibold text-neutral-900">Customize</h3>
-          <div className="mt-3 grid gap-5 sm:grid-cols-2">
-            <Choice
-              label="Background"
-              value={theme.bgStyle}
-              options={[["solid", "Solid"], ["gradient", "Gradient"]]}
-              onChange={(bgStyle) => setTheme((t) => ({ ...t, bgStyle }))}
-            />
-            <div className="flex gap-4">
-              <ColorField label={theme.bgStyle === "gradient" ? "From" : "Color"} value={theme.bg} onChange={(bg) => setTheme((t) => ({ ...t, bg }))} />
-              {theme.bgStyle === "gradient" && (
-                <ColorField label="To" value={theme.bg2} onChange={(bg2) => setTheme((t) => ({ ...t, bg2 }))} />
+          <ThemeTabs
+            theme={theme}
+            setTheme={setTheme}
+            bgImageUrl={profile.bgImageUrl}
+            onBgImageChange={(bgImageUrl) => setProfile((p) => ({ ...p, bgImageUrl }))}
+          />
+        </Section>
+
+        <Section title="Bottom dock" status={themeSave.status} error={themeSave.error}>
+          <p className="-mt-2 mb-5 text-sm text-neutral-500">
+            The round Call, Email, QR code and Share buttons at the bottom of your page. Style them on their own, separately from the theme.
+          </p>
+          <div className="grid items-start gap-6 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="space-y-5">
+              <Choice
+                label="Colours"
+                value={theme.dockStyle}
+                options={[["auto", "Match theme"], ["silver", "Silver"], ["custom", "Custom"]]}
+                onChange={(dockStyle) =>
+                  setTheme((t) => {
+                    if (dockStyle !== "custom" || t.dockStyle === "custom") return { ...t, dockStyle };
+                    // Start custom from what the dock looks like now.
+                    const c = dockColors(t);
+                    return { ...t, dockStyle, dockBg: c.bg, dockIcon: c.icon, dockAccent: c.accent };
+                  })
+                }
+              />
+              {theme.dockStyle === "custom" && (
+                <div>
+                  <div className="flex gap-4">
+                    <ColorField label="Dock" value={theme.dockBg} onChange={(dockBg) => setTheme((t) => ({ ...t, dockBg }))} />
+                    <ColorField label="Icons" value={theme.dockIcon} onChange={(dockIcon) => setTheme((t) => ({ ...t, dockIcon }))} />
+                    <ColorField label="First button" value={theme.dockAccent} onChange={(dockAccent) => setTheme((t) => ({ ...t, dockAccent }))} />
+                  </div>
+                  {contrast(theme.dockIcon, theme.dockBg) < 3 && (
+                    <p className="mt-2 text-xs font-medium text-amber-700">Icons will be hard to see on this dock colour. Pick a lighter or darker one.</p>
+                  )}
+                </div>
               )}
-              <ColorField label="Text" value={theme.text} onChange={(text) => setTheme((t) => ({ ...t, text }))} />
             </div>
-            <Choice
-              label="Button style"
-              value={theme.buttonStyle}
-              options={[["fill", "Fill"], ["outline", "Outline"], ["shadow", "Hard shadow"]]}
-              onChange={(buttonStyle) => setTheme((t) => ({ ...t, buttonStyle }))}
-            />
-            <Choice
-              label="Button shape"
-              value={theme.buttonShape}
-              options={[["square", "Square"], ["rounded", "Rounded"], ["pill", "Pill"]]}
-              onChange={(buttonShape) => setTheme((t) => ({ ...t, buttonShape }))}
-            />
-            <div className="flex gap-4">
-              <ColorField label="Button" value={theme.buttonBg} onChange={(buttonBg) => setTheme((t) => ({ ...t, buttonBg }))} />
-              <ColorField label="Button text" value={theme.buttonText} onChange={(buttonText) => setTheme((t) => ({ ...t, buttonText }))} />
-            </div>
-            <Choice
-              label="Font"
-              value={theme.font}
-              options={Object.entries(FONTS).map(([id, f]) => [id as Theme["font"], f.label])}
-              onChange={(font) => setTheme((t) => ({ ...t, font }))}
-            />
+            <DockSample theme={theme} />
           </div>
         </Section>
 
@@ -185,6 +199,26 @@ export default function AppearanceEditor(props: Props) {
       </aside>
     </div>
   );
+}
+
+/** A small live sample of the dock on the page background, so the choice is visible on phones too. */
+function DockSample({ theme }: { theme: Theme }) {
+  const c = dockColors(theme);
+  const ground = theme.bgStyle === "gradient" ? `linear-gradient(165deg, ${theme.bg}, ${theme.bg2})` : theme.bg;
+  return (
+    <div aria-hidden className="flex items-center justify-center rounded-2xl px-6 py-5" style={{ background: ground }}>
+      <div className="flex items-center gap-1.5 rounded-full p-1.5" style={{ background: c.bg, color: c.icon, boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${c.icon} 18%, transparent), 0 10px 24px -8px rgb(0 0 0 / 0.5)` }}>
+        <span className="grid h-10 w-10 place-items-center rounded-full" style={{ background: c.accentFill ?? c.accent, color: c.accentIcon }}><FaPhone size={14} /></span>
+        <span className="grid h-10 w-10 place-items-center rounded-full" style={{ background: `color-mix(in oklab, ${c.icon} 13%, transparent)` }}><FaQrcode size={15} /></span>
+        <span className="grid h-10 w-10 place-items-center rounded-full" style={{ background: `color-mix(in oklab, ${c.icon} 13%, transparent)` }}><FaShareNodes size={15} /></span>
+      </div>
+    </div>
+  );
+}
+
+/** The part of a preset that picking it applies; everything else on the theme carries over. */
+function pickPreset(t: Theme) {
+  return Object.fromEntries(PRESET_KEYS.map((k) => [k, t[k]])) as Pick<Theme, (typeof PRESET_KEYS)[number]>;
 }
 
 function Section({
@@ -218,15 +252,20 @@ function Choice<T extends string>({
   value,
   options,
   onChange,
+  styleFor,
+  hint,
 }: {
   label: string;
   value: T;
   options: [T, string][];
   onChange: (value: T) => void;
+  styleFor?: (value: T) => React.CSSProperties;
+  hint?: string;
 }) {
   return (
     <fieldset>
       <legend className="label">{label}</legend>
+      {hint && <p className="-mt-1 mb-2 text-xs text-neutral-500">{hint}</p>}
       <div className="flex flex-wrap gap-2">
         {options.map(([id, text]) => (
           <button
@@ -234,6 +273,7 @@ function Choice<T extends string>({
             type="button"
             aria-pressed={value === id}
             onClick={() => onChange(id)}
+            style={styleFor?.(id)}
             className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${
               value === id
                 ? "border-neutral-900 bg-neutral-900 text-white"
@@ -553,5 +593,425 @@ function SocialsEditor({
       )}
       {error && <p role="alert" className="mt-2 text-sm text-red-600">{error}</p>}
     </Section>
+  );
+}
+
+const TABS = [
+  ["background", "Background"],
+  ["colours", "Colours"],
+  ["layout", "Layout"],
+  ["shapes", "Shapes"],
+  ["text", "Text"],
+  ["visibility", "Show / hide"],
+] as const;
+
+type TabId = (typeof TABS)[number][0];
+type SetTheme = React.Dispatch<React.SetStateAction<Theme>>;
+
+/** Every customization, grouped into tabs so the section stays scannable. */
+function ThemeTabs({
+  theme,
+  setTheme,
+  bgImageUrl,
+  onBgImageChange,
+}: {
+  theme: Theme;
+  setTheme: SetTheme;
+  bgImageUrl: string | null;
+  onBgImageChange: (url: string | null) => void;
+}) {
+  const [tab, setTab] = useState<TabId>("background");
+  const set = <K extends keyof Theme>(key: K) => (value: Theme[K]) => setTheme((t) => ({ ...t, [key]: value }));
+  const fontOptions = (bodyOnly: boolean) =>
+    (Object.entries(FONTS) as [FontKey, (typeof FONTS)[FontKey]][])
+      .filter(([, f]) => !bodyOnly || f.body)
+      .map(([id, f]) => [id, f.label] as [FontKey, string]);
+
+  return (
+    <div className="mt-8">
+      <h3 className="text-sm font-semibold text-neutral-900">Customize</h3>
+      <div role="tablist" aria-label="Customize" className="mt-3 flex gap-1 overflow-x-auto rounded-full bg-neutral-100 p-1">
+        {TABS.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={tab === id}
+            onClick={() => setTab(id)}
+            className={`rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition ${
+              tab === id ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-600 hover:text-neutral-900"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div role="tabpanel" className="mt-6 grid gap-6 sm:grid-cols-2">
+        {tab === "background" && (
+          <>
+            <div className="sm:col-span-2">
+              <Choice
+                label="Style"
+                value={theme.bgStyle}
+                options={[["solid", "Solid"], ["gradient", "Gradient"], ["radial", "Glow"], ["mesh", "Mesh"], ["image", "Photo"]]}
+                onChange={set("bgStyle")}
+              />
+            </div>
+            <div className="flex gap-4">
+              <ColorField label={theme.bgStyle === "solid" || theme.bgStyle === "image" ? "Colour" : "Main"} value={theme.bg} onChange={set("bg")} />
+              {(theme.bgStyle === "gradient" || theme.bgStyle === "radial" || theme.bgStyle === "mesh") && (
+                <ColorField label={theme.bgStyle === "gradient" ? "To" : "Glow"} value={theme.bg2} onChange={set("bg2")} />
+              )}
+            </div>
+            {theme.bgStyle === "gradient" && (
+              <Slider label="Direction" value={theme.gradientAngle} min={0} max={360} step={15} unit="°" onChange={set("gradientAngle")} />
+            )}
+            {theme.bgStyle === "image" && (
+              <>
+                <div className="sm:col-span-2">
+                  <BackgroundPicker url={bgImageUrl} onChange={onBgImageChange} />
+                </div>
+                <Slider label="Blur" value={theme.bgBlur} min={0} max={40} step={1} unit="px" onChange={set("bgBlur")} />
+                <Slider
+                  label="Dim"
+                  hint="Tints the photo with your main colour so text stays readable."
+                  value={theme.bgDim}
+                  min={0}
+                  max={85}
+                  step={5}
+                  unit="%"
+                  onChange={set("bgDim")}
+                />
+              </>
+            )}
+          </>
+        )}
+
+        {tab === "colours" && (
+          <>
+            <div className="flex flex-wrap gap-4">
+              <ColorField label="Text" value={theme.text} onChange={set("text")} />
+              <ColorField label="Links" value={theme.buttonBg} onChange={set("buttonBg")} />
+              <ColorField label="Link text" value={theme.buttonText} onChange={set("buttonText")} />
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <AutoColorField label="Card" value={theme.cardColor} fallback={theme.text} onChange={set("cardColor")} />
+              <AutoColorField label="Card text" value={theme.cardText} fallback={theme.bg} onChange={set("cardText")} />
+              <AutoColorField
+                label="Accent"
+                hint="Verified tick and filled buttons"
+                value={theme.accent}
+                fallback={theme.buttonBg}
+                onChange={set("accent")}
+              />
+            </div>
+            {theme.cardColor !== "auto" && theme.cardText !== "auto" && contrast(theme.cardColor, theme.cardText) < 4.5 && (
+              <p className="text-xs font-medium text-amber-700 sm:col-span-2">
+                The card text will be hard to read on this card colour. Pick a lighter or darker one.
+              </p>
+            )}
+          </>
+        )}
+
+        {tab === "layout" && (
+          <>
+            <Choice
+              label="Links"
+              value={theme.linkLayout}
+              options={[["grid", "Picture grid"], ["list", "List"], ["chips", "Compact"]]}
+              onChange={set("linkLayout")}
+            />
+            <Toggle
+              label="Show link pictures"
+              description="Each site's own preview image on its tile."
+              checked={theme.showPreviews}
+              onChange={set("showPreviews")}
+            />
+            <Choice label="Card text" value={theme.cardAlign} options={[["center", "Centered"], ["left", "Left"]]} onChange={set("cardAlign")} />
+            <Choice
+              label="Photo shape"
+              value={theme.avatarShape}
+              options={[["circle", "Circle"], ["rounded", "Rounded"], ["square", "Square"]]}
+              onChange={set("avatarShape")}
+            />
+            <Choice
+              label="Photo size"
+              value={theme.avatarSize}
+              options={[["s", "Small"], ["m", "Medium"], ["l", "Large"]]}
+              onChange={set("avatarSize")}
+            />
+          </>
+        )}
+
+        {tab === "shapes" && (
+          <>
+            <Slider label="Corner roundness" value={theme.radius} min={0} max={40} step={1} unit="px" onChange={set("radius")} />
+            <Choice
+              label="Card finish"
+              value={theme.cardFinish}
+              options={[["gloss", "Gloss"], ["matte", "Matte"], ["glass", "Glass"], ["outline", "Outline"]]}
+              onChange={set("cardFinish")}
+            />
+            <Choice
+              label="Link style"
+              value={theme.buttonStyle}
+              options={[["fill", "Fill"], ["outline", "Outline"], ["shadow", "Hard shadow"]]}
+              onChange={set("buttonStyle")}
+            />
+            <Choice
+              label="Contact buttons"
+              value={theme.pillStyle}
+              options={[["outline", "Outline"], ["filled", "Filled"], ["soft", "Soft"]]}
+              onChange={set("pillStyle")}
+            />
+            <Choice label="Shadows" value={theme.shadow} options={[["none", "None"], ["soft", "Soft"], ["strong", "Strong"]]} onChange={set("shadow")} />
+          </>
+        )}
+
+        {tab === "text" && (
+          <>
+            <div className="sm:col-span-2">
+              <Choice
+                label="Font"
+                value={theme.font}
+                options={fontOptions(true)}
+                onChange={set("font")}
+                styleFor={(id) => ({ fontFamily: FONTS[id].variable })}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Choice<FontKey | "same">
+                label="Heading font"
+                hint="Your name and link titles."
+                value={theme.headingFont}
+                options={[["same", "Same as text"], ...fontOptions(false)]}
+                onChange={set("headingFont")}
+                styleFor={(id) => (id === "same" ? {} : { fontFamily: FONTS[id].variable })}
+              />
+            </div>
+            <Choice label="Text size" value={theme.textScale} options={[["s", "Small"], ["m", "Medium"], ["l", "Large"]]} onChange={set("textScale")} />
+          </>
+        )}
+
+        {tab === "visibility" && (
+          <>
+            <Toggle label="@handle under your name" checked={theme.showHandle} onChange={set("showHandle")} />
+            <Toggle label="Bottom dock" description="Call, Email, QR code and Share." checked={theme.showDock} onChange={set("showDock")} />
+            <Toggle label="OneTap at the bottom" checked={theme.showFooter} onChange={set("showFooter")} />
+            <Toggle label="Animate when the page opens" checked={theme.animations} onChange={set("animations")} />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Slider({
+  label,
+  hint,
+  value,
+  min,
+  max,
+  step,
+  unit,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  unit: string;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="label flex items-baseline justify-between">
+        {label}
+        <span className="text-xs font-normal text-neutral-500 tabular-nums">
+          {value}
+          {unit}
+        </span>
+      </span>
+      {hint && <span className="-mt-1 mb-2 block text-xs text-neutral-500">{hint}</span>}
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full accent-neutral-900"
+      />
+    </label>
+  );
+}
+
+function Toggle({
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className="flex items-center justify-between gap-4 rounded-xl border border-neutral-200 px-4 py-3 text-left transition hover:bg-neutral-50"
+    >
+      <span>
+        <span className="block text-sm font-medium text-neutral-800">{label}</span>
+        {description && <span className="mt-0.5 block text-xs text-neutral-500">{description}</span>}
+      </span>
+      <span
+        aria-hidden
+        className={`relative h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-neutral-900" : "bg-neutral-300"}`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : ""}`}
+        />
+      </span>
+    </button>
+  );
+}
+
+/** A colour that can be left on "Auto" (worked out from the theme) or set by hand. */
+function AutoColorField({
+  label,
+  hint,
+  value,
+  fallback,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  fallback: string;
+  onChange: (value: string) => void;
+}) {
+  const isAuto = value === "auto";
+  return (
+    <div className="flex flex-col gap-1.5 text-sm font-medium text-neutral-700">
+      <span>
+        {label}
+        {hint && <span className="block text-xs font-normal text-neutral-500">{hint}</span>}
+      </span>
+      <div className="flex items-center gap-2">
+        <span className={`relative block h-10 w-14 overflow-hidden rounded-lg border border-neutral-300 ${isAuto ? "opacity-40" : ""}`}>
+          <input
+            type="color"
+            aria-label={label}
+            value={isAuto ? fallback : value}
+            onChange={(e) => onChange(e.target.value)}
+            className="absolute -inset-2 h-[calc(100%+16px)] w-[calc(100%+16px)] cursor-pointer"
+          />
+        </span>
+        <button
+          type="button"
+          aria-pressed={isAuto}
+          onClick={() => onChange(isAuto ? fallback : "auto")}
+          className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+            isAuto ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-300 text-neutral-600 hover:bg-neutral-100"
+          }`}
+        >
+          Auto
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Scales a photo so its longest side is at most 1600px, keeping it under the upload limit. */
+async function resizeBackground(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  for (const quality of [0.8, 0.65, 0.5]) {
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", quality));
+    if (blob && blob.size < 880 * 1024) return blob;
+  }
+  throw new Error("encode failed");
+}
+
+function BackgroundPicker({ url, onChange }: { url: string | null; onChange: (url: string | null) => void }) {
+  const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function upload(file: File) {
+    setError(null);
+    if (!file.type.startsWith("image/")) return setError("Choose an image file");
+    if (file.size > 25 * 1024 * 1024) return setError("Image must be under 25 MB");
+    setBusy(true);
+    try {
+      const blob = await resizeBackground(file);
+      const form = new FormData();
+      form.append("background", new File([blob], "background", { type: blob.type }));
+      const result = await uploadBackground(form);
+      if (!result.ok) setError(result.error);
+      else onChange(result.data);
+    } catch {
+      setError("Couldn't read that image. Try a PNG or JPG.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove() {
+    setBusy(true);
+    const result = await removeBackground();
+    setBusy(false);
+    if (!result.ok) return setError(result.error);
+    onChange(null);
+  }
+
+  return (
+    <div className="flex items-center gap-5">
+      <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-xl bg-neutral-200">
+        {url && (
+          // eslint-disable-next-line @next/next/no-img-element -- user upload
+          <img src={url} alt="" className="h-full w-full object-cover" />
+        )}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-neutral-800">Background photo</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Fills the whole page behind your card and links.</p>
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          <button type="button" disabled={busy} onClick={() => input.current?.click()} className="btn-secondary">
+            <FaCamera /> {busy ? "Working…" : url ? "Change photo" : "Upload photo"}
+          </button>
+          {url && (
+            <button type="button" disabled={busy} onClick={remove} className="btn-secondary">
+              Remove
+            </button>
+          )}
+        </div>
+        {error && <p role="alert" className="mt-2 text-sm text-red-600">{error}</p>}
+      </div>
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) upload(file);
+          e.target.value = "";
+        }}
+      />
+    </div>
   );
 }

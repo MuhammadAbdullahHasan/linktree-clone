@@ -12,6 +12,8 @@ export const profileColumns = {
   avatarVersion: profiles.avatarVersion,
   coverType: profiles.coverType,
   coverVersion: profiles.coverVersion,
+  bgImageType: profiles.bgImageType,
+  bgImageVersion: profiles.bgImageVersion,
   verified: profiles.verified,
   theme: profiles.theme,
 };
@@ -24,6 +26,10 @@ export function coverUrlFor(p: { id: string; coverType: string | null; coverVers
   return p.coverType ? `/cover/${p.id}?v=${p.coverVersion}` : null;
 }
 
+export function bgImageUrlFor(p: { id: string; bgImageType: string | null; bgImageVersion: number }) {
+  return p.bgImageType ? `/bg/${p.id}?v=${p.bgImageVersion}` : null;
+}
+
 export function toProfile(row: {
   id: string;
   username: string | null;
@@ -33,6 +39,8 @@ export function toProfile(row: {
   avatarVersion: number;
   coverType: string | null;
   coverVersion: number;
+  bgImageType: string | null;
+  bgImageVersion: number;
   verified: boolean;
   theme: unknown;
 }): Profile {
@@ -43,6 +51,7 @@ export function toProfile(row: {
     bio: row.bio,
     avatarUrl: avatarUrlFor(row),
     coverUrl: coverUrlFor(row),
+    bgImageUrl: bgImageUrlFor(row),
     verified: row.verified,
     theme: row.theme,
   };

@@ -12,6 +12,7 @@ const DEMO: PageData = {
   bio: "Ceramicist & weekend baker. New pieces every first Friday.",
   avatarUrl: null,
   coverUrl: null,
+  bgImageUrl: null,
   verified: false,
   theme: THEME_PRESETS.find((p) => p.id === "sunset")!.theme,
   links: [

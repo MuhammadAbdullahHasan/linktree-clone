@@ -15,6 +15,7 @@ export default async function AppearancePage() {
         bio: profile.bio ?? "",
         avatarUrl: profile.avatarUrl,
         coverUrl: profile.coverUrl,
+        bgImageUrl: profile.bgImageUrl,
       }}
       initialTheme={resolveTheme(profile.theme)}
       initialSocials={socials}

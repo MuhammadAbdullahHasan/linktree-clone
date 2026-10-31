@@ -4,7 +4,7 @@ import { resolveTheme } from "@/lib/themes";
 import type { PageData, Profile } from "@/lib/types";
 
 export function toPageData(
-  profile: Pick<Profile, "username" | "displayName" | "bio" | "avatarUrl" | "coverUrl" | "verified" | "theme">,
+  profile: Pick<Profile, "username" | "displayName" | "bio" | "avatarUrl" | "coverUrl" | "bgImageUrl" | "verified" | "theme">,
   links: PageData["links"],
   socials: PageData["socials"],
 ): PageData {
@@ -14,6 +14,7 @@ export function toPageData(
     bio: profile.bio,
     avatarUrl: profile.avatarUrl,
     coverUrl: profile.coverUrl,
+    bgImageUrl: profile.bgImageUrl,
     verified: profile.verified,
     theme: resolveTheme(profile.theme),
     links,

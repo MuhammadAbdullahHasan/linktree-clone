@@ -6,7 +6,7 @@ import { z } from "zod";
 import { db, links, profiles, socialLinks } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
 import { refreshLinkImage } from "@/lib/link-preview";
-import { avatarUrlFor, coverUrlFor, linkColumns, socialColumns, toLink } from "@/lib/profile-query";
+import { avatarUrlFor, bgImageUrlFor, coverUrlFor, linkColumns, socialColumns, toLink } from "@/lib/profile-query";
 import { socialInputToUrl, SOCIALS_BY_ID } from "@/lib/socials";
 import { themeSchema, type Theme } from "@/lib/themes";
 import type { ActionResult, Link, SocialLink } from "@/lib/types";
@@ -190,6 +190,31 @@ export async function uploadCover(formData: FormData): Promise<ActionResult<stri
 export async function removeCover(): Promise<ActionResult> {
   const userId = await requireUserId();
   await db.update(profiles).set({ cover: null, coverType: null }).where(eq(profiles.id, userId));
+  return { ok: true, data: null };
+}
+
+/** Saves a full-page background photo. The browser resizes it first. */
+export async function uploadBackground(formData: FormData): Promise<ActionResult<string>> {
+  const file = formData.get("background");
+  if (!(file instanceof File) || !AVATAR_TYPES.has(file.type)) return fail("Choose a PNG, JPG or WebP image");
+  if (file.size > MAX_COVER_BYTES) return fail("Image is too large");
+
+  const userId = await requireUserId();
+  const [row] = await db
+    .update(profiles)
+    .set({
+      bgImage: Buffer.from(await file.arrayBuffer()),
+      bgImageType: file.type,
+      bgImageVersion: sql`${profiles.bgImageVersion} + 1`,
+    })
+    .where(eq(profiles.id, userId))
+    .returning({ id: profiles.id, bgImageType: profiles.bgImageType, bgImageVersion: profiles.bgImageVersion });
+  return { ok: true, data: bgImageUrlFor(row)! };
+}
+
+export async function removeBackground(): Promise<ActionResult> {
+  const userId = await requireUserId();
+  await db.update(profiles).set({ bgImage: null, bgImageType: null }).where(eq(profiles.id, userId));
   return { ok: true, data: null };
 }
 

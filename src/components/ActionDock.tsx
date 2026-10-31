@@ -3,7 +3,7 @@
 import { useRef, useState, type CSSProperties } from "react";
 import { FaCheck, FaEnvelope, FaPhone, FaQrcode, FaShareNodes, FaXmark } from "react-icons/fa6";
 import QRCode from "qrcode";
-import { luminance } from "@/lib/themes";
+import type { dockColors } from "@/lib/themes";
 
 type Props = {
   username: string;
@@ -11,17 +11,14 @@ type Props = {
   /** "+923001234567", or null when the page has no number. */
   phone: string | null;
   email: string | null;
-  ink: string;
-  paper: string;
+  colors: ReturnType<typeof dockColors>;
 };
 
 /**
  * Floating dock of round buttons for the actions the profile card doesn't already offer:
  * Call, Email, QR code (so someone can scan the page off this screen) and Share.
  */
-export default function ActionDock({ username, name, phone, email, ink, paper }: Props) {
-  // The dock is always the dark element of the page, whichever way round the theme is.
-  const [dark, light] = luminance(ink) <= luminance(paper) ? [ink, paper] : [paper, ink];
+export default function ActionDock({ username, name, phone, email, colors }: Props) {
   const [copied, setCopied] = useState(false);
   const [qr, setQr] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -63,10 +60,10 @@ export default function ActionDock({ username, name, phone, email, ink, paper }:
 
   const disc =
     "grid h-[52px] w-[52px] place-items-center rounded-full transition-[background-color,transform] duration-200 active:scale-90";
-  const highlight: CSSProperties = { background: light, color: dark, boxShadow: "0 4px 14px -4px rgb(0 0 0 / 0.5)" };
+  const highlight: CSSProperties = { background: colors.accentFill ?? colors.accent, color: colors.accentIcon, boxShadow: "0 4px 14px -4px rgb(0 0 0 / 0.5)" };
   const quiet: CSSProperties = {
-    background: `color-mix(in oklab, ${light} 13%, transparent)`,
-    boxShadow: `inset 0 1px 0 color-mix(in oklab, ${light} 18%, transparent)`,
+    background: `color-mix(in oklab, ${colors.icon} 13%, transparent)`,
+    boxShadow: `inset 0 1px 0 color-mix(in oklab, ${colors.icon} 18%, transparent)`,
   };
 
   return (
@@ -77,10 +74,10 @@ export default function ActionDock({ username, name, phone, email, ink, paper }:
           className="pf-dock pointer-events-auto flex items-center gap-2 rounded-full p-2 backdrop-blur-xl"
           style={
             {
-              background: `color-mix(in oklab, ${dark} 92%, transparent)`,
-              color: light,
-              "--pf-focus": light,
-              boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${light} 18%, transparent), 0 22px 48px -12px rgb(0 0 0 / 0.6), 0 4px 10px rgb(0 0 0 / 0.18)`,
+              background: `color-mix(in oklab, ${colors.bg} 92%, transparent)`,
+              color: colors.icon,
+              "--pf-focus": colors.icon,
+              boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${colors.icon} 18%, transparent), 0 22px 48px -12px rgb(0 0 0 / 0.6), 0 4px 10px rgb(0 0 0 / 0.18)`,
             } as CSSProperties
           }
         >

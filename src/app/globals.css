@@ -97,3 +97,10 @@ body {
     transform: translateY(24px) scale(0.96);
   }
 }
+
+/* Owner turned the load animation off in Appearance. */
+.profile.pf-static .pf-rise,
+.profile.pf-static .pf-dock,
+.profile.pf-static .pf-hero-media {
+  animation: none;
+}

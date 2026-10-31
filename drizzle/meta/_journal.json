@@ -29,6 +29,13 @@
       "when": 1793368032577,
       "tag": "0003_link_image_data",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1793442921735,
+      "tag": "0004_background_image",
+      "breakpoints": true
     }
   ]
 }
