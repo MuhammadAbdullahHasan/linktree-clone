@@ -174,12 +174,13 @@ function AddLinkForm({ onAdded }: { onAdded: (link: Link) => void }) {
         />
       </div>
       <div>
-        <label htmlFor="new-url" className="label">URL</label>
+        <label htmlFor="new-url" className="label">Link, phone number or email</label>
         <input
           id="new-url"
           required
-          inputMode="url"
-          placeholder="youtube.com/watch?v=..."
+          autoCapitalize="none"
+          autoCorrect="off"
+          placeholder="example.com or +92 300 1234567"
           className="input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
@@ -247,8 +248,8 @@ function LinkCard({ link, onUpdate, onDelete }: CardProps) {
           onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
         />
         <input
-          aria-label="Link URL"
-          inputMode="url"
+          aria-label="Link, phone number or email"
+          autoCapitalize="none"
           className="w-full rounded-md px-2 py-1 text-sm text-neutral-600 outline-none hover:bg-neutral-100 focus:bg-neutral-100"
           value={url}
           onChange={(e) => setUrl(e.target.value)}

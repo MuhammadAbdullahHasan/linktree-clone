@@ -1,6 +1,6 @@
 import type { IconType } from "react-icons";
 import {
-  FaDiscord, FaEnvelope, FaFacebook, FaGithub, FaGlobe, FaInstagram, FaLinkedin, FaPinterest,
+  FaDiscord, FaEnvelope, FaFacebook, FaGithub, FaGlobe, FaInstagram, FaLinkedin, FaPhone, FaPinterest,
   FaSnapchat, FaSpotify, FaTelegram, FaThreads, FaTiktok, FaTwitch, FaWhatsapp, FaXTwitter, FaYoutube,
 } from "react-icons/fa6";
 
@@ -32,6 +32,9 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
 ];
 
 export const SOCIALS_BY_ID = new Map(SOCIAL_PLATFORMS.map((p) => [p.id, p]));
+
+/** The icon for a link button to a tel: number. Not offered as a social icon. */
+const PHONE_LINK: SocialPlatform = { id: "phone", label: "Phone", icon: FaPhone, placeholder: "+92 300 1234567" };
 
 // Numbers typed in local format (leading 0, e.g. 0300 1234567) get this country code.
 const DEFAULT_COUNTRY_CODE = "92";
@@ -73,10 +76,10 @@ export function socialInputToUrl(platform: string, input: string): string | null
 }
 
 /**
- * The phone number (+digits) for "Save contact": from the page's WhatsApp icon, or else from a
- * link button that points to wa.me.
+ * The WhatsApp number (+digits): from the page's WhatsApp icon, or else from a link button that
+ * points to wa.me.
  */
-export function contactPhone(
+export function whatsappPhone(
   socials: { platform: string; url: string }[],
   links: { url: string }[] = [],
 ): string | null {
@@ -87,6 +90,23 @@ export function contactPhone(
     if (number) return `+${number}`;
   }
   return null;
+}
+
+/** The +digits of a tel: link, or null. */
+export function telPhone(url: string): string | null {
+  const number = url.startsWith("tel:") ? toWhatsAppNumber(decodeURIComponent(url.slice(4))) : null;
+  return number ? `+${number}` : null;
+}
+
+/**
+ * The phone number (+digits) for "Save contact" and Call: the WhatsApp number, or else the first
+ * link button that points to a tel: number.
+ */
+export function contactPhone(
+  socials: { platform: string; url: string }[],
+  links: { url: string }[] = [],
+): string | null {
+  return whatsappPhone(socials, links) ?? links.map((l) => telPhone(l.url)).find(Boolean) ?? null;
 }
 
 /** The email address from a page's Email icon, if any. */
@@ -127,6 +147,7 @@ const HOST_PLATFORMS: [RegExp, string][] = [
 /** The platform a link points to (for its tile icon); "website" when it's none of the known ones. */
 export function platformForUrl(url: string): SocialPlatform {
   if (url.startsWith("mailto:")) return SOCIALS_BY_ID.get("email")!;
+  if (url.startsWith("tel:")) return PHONE_LINK;
   try {
     const host = new URL(url).hostname.replace(/^www\./, "");
     const match = HOST_PLATFORMS.find(([pattern]) => pattern.test(host));

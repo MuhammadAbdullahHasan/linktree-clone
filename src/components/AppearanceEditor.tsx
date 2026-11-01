@@ -65,7 +65,7 @@ export default function AppearanceEditor(props: Props) {
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="space-y-8">
         <h1 className="text-2xl font-extrabold tracking-tight">Appearance</h1>
 

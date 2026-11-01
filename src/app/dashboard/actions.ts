@@ -15,7 +15,7 @@ import { usernameSchema } from "@/lib/username";
 
 // Every query below is scoped to the signed-in user's id; that is what keeps users out of each other's data.
 
-const BAD_URL = "Enter a valid web address, like example.com";
+const BAD_URL = "Enter a web address like example.com, a phone number or an email";
 const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_AVATAR_BYTES = 512 * 1024;
 const MAX_COVER_BYTES = 900 * 1024;

@@ -5,7 +5,7 @@ import { MdVerified } from "react-icons/md";
 import ActionDock from "@/components/ActionDock";
 import { ContactPills } from "@/components/ContactActions";
 import { APP_NAME } from "@/lib/config";
-import { contactEmail, contactPhone, linkCaption, platformForUrl, SOCIALS_BY_ID } from "@/lib/socials";
+import { contactEmail, contactPhone, linkCaption, platformForUrl, SOCIALS_BY_ID, telPhone, whatsappPhone } from "@/lib/socials";
 import {
   AVATAR_SIZES,
   bestOn,
@@ -86,7 +86,8 @@ export default function ProfilePage({ data, preview = false }: Props) {
   const name = data.displayName || `@${data.username}`;
   const phone = contactPhone(data.socials, data.links);
   const email = contactEmail(data.socials);
-  const whatsapp = phone ? `https://wa.me/${phone.slice(1)}` : null;
+  const waPhone = whatsappPhone(data.socials, data.links);
+  const whatsapp = waPhone ? `https://wa.me/${waPhone.slice(1)}` : null;
   // The name a saved contact gets: the display name, or the bare handle.
   const contactName = data.displayName || data.username;
   const background = pageBackground(theme);
@@ -153,11 +154,15 @@ export default function ProfilePage({ data, preview = false }: Props) {
 
   // WhatsApp has its own button on the card.
   // Email has a dock button, so neither repeats among the social icons.
-  const socials = data.socials.filter((s) => !(s.platform === "whatsapp" && phone) && s.platform !== "email");
+  const socials = data.socials.filter((s) => !(s.platform === "whatsapp" && waPhone) && s.platform !== "email");
   // A link tile to the same WhatsApp number would be a third copy of the card pill and dock button.
-  // The same goes for a mailto: tile to the address the page already offers as a button.
+  // The same goes for a mailto: tile to the address the page already offers as a button, and a
+  // tel: tile to the number the dock's Call button rings (kept when the dock is hidden).
   const links = data.links.filter(
-    (l) => !(phone && contactPhone([], [{ url: l.url }]) === phone) && !(email && l.url === `mailto:${email}`),
+    (l) =>
+      !(waPhone && whatsappPhone([], [{ url: l.url }]) === waPhone) &&
+      !(theme.showDock && phone && telPhone(l.url) === phone) &&
+      !(email && l.url === `mailto:${email}`),
   );
 
   // The footer sits at the bottom of the page, where a linear gradient has reached its second colour.
@@ -360,8 +365,8 @@ export default function ProfilePage({ data, preview = false }: Props) {
           username={data.username}
           name={contactName}
           phone={phone}
-          // Without a phone, the card's second pill is already Email.
-          email={phone ? email : null}
+          // Without WhatsApp, the card's second pill is already Email.
+          email={whatsapp ? email : null}
           colors={dockColors(theme)}
         />
       )}
