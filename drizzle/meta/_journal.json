@@ -36,6 +36,13 @@
       "when": 1793442921735,
       "tag": "0004_background_image",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1793526546654,
+      "tag": "0005_managed_profiles",
+      "breakpoints": true
     }
   ]
 }

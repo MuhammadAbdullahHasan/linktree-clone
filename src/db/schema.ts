@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { blob, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { blob, index, integer, sqliteTable, text, uniqueIndex, type AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 
 const id = () =>
   text("id")
@@ -14,6 +14,11 @@ export const users = sqliteTable("users", {
   id: id(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  /**
+   * Set on customer profiles the site owner runs for them. Those users have a placeholder
+   * email and no password, so nobody can sign in as them; only their admin edits them.
+   */
+  managedBy: text("managed_by").references((): AnySQLiteColumn => users.id, { onDelete: "cascade" }),
   createdAt: createdAt(),
 });
 
@@ -26,9 +31,38 @@ export const sessions = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    /** An admin's session switched to one of their managed profiles; the dashboard edits that profile. */
+    actingAs: text("acting_as").references(() => users.id, { onDelete: "set null" }),
   },
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
+
+/** Long-lived tokens for the Control Room server. Stores a SHA-256 of the token, never the token itself. */
+export const apiTokens = sqliteTable(
+  "api_tokens",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    label: text("label"),
+    lastUsedAt: integer("last_used_at", { mode: "timestamp_ms" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("api_tokens_user_idx").on(t.userId)],
+);
+
+/** One-time sign-in links that open a managed profile's dashboard (in the Control Room app). SHA-256 ids. */
+export const handoffTokens = sqliteTable("handoff_tokens", {
+  id: text("id").primaryKey(),
+  adminId: text("admin_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  profileId: text("profile_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+});
 
 /** Failed sign-in attempts, for rate limiting. */
 export const loginAttempts = sqliteTable(

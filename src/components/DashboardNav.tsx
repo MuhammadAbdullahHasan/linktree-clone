@@ -10,11 +10,12 @@ const ITEMS = [
   { href: "/dashboard/settings", label: "Settings" },
 ];
 
-export default function DashboardNav() {
+export default function DashboardNav({ showProfiles = false }: { showProfiles?: boolean }) {
   const pathname = usePathname();
+  const items = showProfiles ? [...ITEMS, { href: "/dashboard/profiles", label: "Profiles" }] : ITEMS;
   return (
     <nav className="order-last -mx-1 flex w-full gap-1 overflow-x-auto sm:order-none sm:w-auto">
-      {ITEMS.map((item) => {
+      {items.map((item) => {
         const active = pathname === item.href;
         return (
           <Link

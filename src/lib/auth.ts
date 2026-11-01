@@ -58,7 +58,7 @@ export function getDummyHash() {
 // Sessions
 // ---------------------------------------------------------------------------
 
-const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
+export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
 async function setSessionCookie(token: string, expiresAt: Date) {
   (await cookies()).set(SESSION_COOKIE, token, {
@@ -71,9 +71,9 @@ async function setSessionCookie(token: string, expiresAt: Date) {
 }
 
 /** Starts a session for the user and sets the cookie. Call from a server action or route handler. */
-export async function createSession(userId: string) {
+export async function createSession(userId: string, days = SESSION_DAYS) {
   const token = randomBytes(32).toString("base64url");
-  const expiresAt = new Date(Date.now() + SESSION_DAYS * DAY_MS);
+  const expiresAt = new Date(Date.now() + days * DAY_MS);
   await db.insert(sessions).values({ id: hashToken(token), userId, expiresAt });
   await setSessionCookie(token, expiresAt);
 }
@@ -86,14 +86,33 @@ export async function destroySession() {
   store.delete(SESSION_COOKIE);
 }
 
+export type CurrentUser = {
+  /** The profile the dashboard edits: the user's own, or the managed profile an admin switched to. */
+  id: string;
+  email: string;
+  /** The account that actually signed in. Differs from `id` while an admin manages a customer profile. */
+  realId: string;
+  realEmail: string;
+  /** True when `id` is a managed customer profile (switched to, or opened from a Control Room link). */
+  managed: boolean;
+  /** Set while an admin is switched to one of their managed profiles. */
+  actingAs: string | null;
+};
+
 /** The signed-in user, or null. Cached for the duration of a request. */
-export const getCurrentUser = cache(async (): Promise<{ id: string; email: string } | null> => {
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
 
   const id = hashToken(token);
   const [row] = await db
-    .select({ userId: users.id, email: users.email, expiresAt: sessions.expiresAt })
+    .select({
+      userId: users.id,
+      email: users.email,
+      managedBy: users.managedBy,
+      expiresAt: sessions.expiresAt,
+      actingAs: sessions.actingAs,
+    })
     .from(sessions)
     .innerJoin(users, eq(users.id, sessions.userId))
     .where(eq(sessions.id, id))
@@ -105,8 +124,9 @@ export const getCurrentUser = cache(async (): Promise<{ id: string; email: strin
     return null;
   }
 
-  // Slide the expiry forward once the session is half used up.
-  if (row.expiresAt.getTime() - Date.now() < (SESSION_DAYS / 2) * DAY_MS) {
+  // Slide the expiry forward once the session is half used up. Sessions opened from a
+  // Control Room link are short (a few days) and are not extended.
+  if (!row.managedBy && row.expiresAt.getTime() - Date.now() < (SESSION_DAYS / 2) * DAY_MS) {
     const expiresAt = new Date(Date.now() + SESSION_DAYS * DAY_MS);
     await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, id));
     // Cookies can only be written from actions and route handlers; elsewhere the DB extension is enough
@@ -114,8 +134,25 @@ export const getCurrentUser = cache(async (): Promise<{ id: string; email: strin
     await setSessionCookie(token, expiresAt).catch(() => {});
   }
 
-  return { id: row.userId, email: row.email };
+  const self = { realId: row.userId, realEmail: row.email };
+  if (row.actingAs && !row.managedBy) {
+    // Only ever a profile this account manages; anything else falls back to the user's own profile.
+    const [target] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(and(eq(users.id, row.actingAs), eq(users.managedBy, row.userId)))
+      .limit(1);
+    if (target) return { id: row.actingAs, email: target.email, ...self, managed: true, actingAs: row.actingAs };
+  }
+  return { id: row.userId, email: row.email, ...self, managed: !!row.managedBy, actingAs: null };
 });
+
+/** Points the current session at one of the admin's managed profiles, or back at their own (null). */
+export async function setActingAs(profileId: string | null) {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!token) return;
+  await db.update(sessions).set({ actingAs: profileId }).where(eq(sessions.id, hashToken(token)));
+}
 
 /** Removes expired sessions and old login attempts. Cheap enough to run on each sign-in. */
 export async function pruneAuthTables() {

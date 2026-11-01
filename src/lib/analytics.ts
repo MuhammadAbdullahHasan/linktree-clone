@@ -1,13 +1,25 @@
 import { and, count, eq, gte, isNotNull, sql } from "drizzle-orm";
-import { db, events, links } from "@/db";
+import { db, events, links, users } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
+
+/** The page's owner, or the admin who runs it for a customer, looking at their own page. */
+async function viewerOwns(profileId: string) {
+  const viewer = await getCurrentUser();
+  if (!viewer) return false;
+  if (viewer.id === profileId || viewer.realId === profileId) return true;
+  const [row] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.id, profileId), eq(users.managedBy, viewer.realId)))
+    .limit(1);
+  return !!row;
+}
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Records a page view unless the viewer owns the page. */
 export async function recordView(profileId: string, referrer: string | null) {
-  const viewer = await getCurrentUser();
-  if (viewer?.id === profileId) return;
+  if (await viewerOwns(profileId)) return;
   await db.insert(events).values({ profileId, type: "view", referrer: referrer?.slice(0, 500) ?? null });
 }
 
@@ -20,8 +32,7 @@ export async function recordClick(linkId: string, referrer: string | null) {
     .limit(1);
   if (!link) return null;
 
-  const viewer = await getCurrentUser();
-  if (viewer?.id !== link.userId) {
+  if (!(await viewerOwns(link.userId))) {
     await db
       .insert(events)
       .values({ profileId: link.userId, linkId, type: "click", referrer: referrer?.slice(0, 500) ?? null });
