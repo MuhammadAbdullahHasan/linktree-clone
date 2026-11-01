@@ -54,16 +54,7 @@ export async function listManaged(adminId: string): Promise<ManagedProfile[]> {
     .orderBy(desc(users.createdAt));
   if (!rows.length) return [];
 
-  const stats = await db
-    .select({
-      profileId: events.profileId,
-      views: sql<number>`sum(case when ${events.type} = 'view' then 1 else 0 end)`,
-      clicks: sql<number>`sum(case when ${events.type} = 'click' then 1 else 0 end)`,
-    })
-    .from(events)
-    .where(and(inArray(events.profileId, rows.map((r) => r.id)), gte(events.createdAt, new Date(Date.now() - 30 * DAY_MS))))
-    .groupBy(events.profileId);
-  const byId = new Map(stats.map((s) => [s.profileId, s]));
+  const byId = await stats30d(rows.map((r) => r.id));
 
   return rows.map((r) => ({
     id: r.id,
@@ -74,6 +65,39 @@ export async function listManaged(adminId: string): Promise<ManagedProfile[]> {
     clicks30d: Number(byId.get(r.id)?.clicks ?? 0),
     createdAt: r.createdAt.toISOString(),
   }));
+}
+
+/** Views and clicks per profile over the last 30 days. */
+async function stats30d(ids: string[]) {
+  const rows = await db
+    .select({
+      profileId: events.profileId,
+      views: sql<number>`sum(case when ${events.type} = 'view' then 1 else 0 end)`,
+      clicks: sql<number>`sum(case when ${events.type} = 'click' then 1 else 0 end)`,
+    })
+    .from(events)
+    .where(and(inArray(events.profileId, ids), gte(events.createdAt, new Date(Date.now() - 30 * DAY_MS))))
+    .groupBy(events.profileId);
+  return new Map(rows.map((s) => [s.profileId, s]));
+}
+
+/** The admin's own profile, with the same numbers as the managed list. */
+export async function ownProfile(adminId: string) {
+  const [p] = await db
+    .select({ id: profiles.id, username: profiles.username, displayName: profiles.displayName, avatarType: profiles.avatarType, avatarVersion: profiles.avatarVersion })
+    .from(profiles)
+    .where(eq(profiles.id, adminId))
+    .limit(1);
+  if (!p) return null;
+  const s = (await stats30d([p.id])).get(p.id);
+  return {
+    id: p.id,
+    username: p.username ?? "",
+    displayName: p.displayName,
+    avatarUrl: avatarUrlFor(p),
+    views30d: Number(s?.views ?? 0),
+    clicks30d: Number(s?.clicks ?? 0),
+  };
 }
 
 export const newProfileSchema = z.object({
