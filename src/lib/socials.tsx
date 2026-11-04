@@ -116,9 +116,34 @@ export function contactEmail(socials: { platform: string; url: string }[]): stri
 }
 
 /** A domain to show under a link's title ("instagram.com"), or the link type for mail and phone links. */
+/** "+923001234567" as "+92 300 1234567", "+34622344639" as "+34 622 344 639". */
+export function formatPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  const pk = digits.match(/^92(3\d{2})(\d{7})$/);
+  if (pk) return `+92 ${pk[1]} ${pk[2]}`;
+  const cc = digits.match(/^(1|7|[2-9]\d)(\d+)$/);
+  if (!cc) return `+${digits}`;
+  const rest = cc[2];
+  const grouped =
+    rest.length === 9 ? rest.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3")
+    : rest.length === 10 ? rest.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3")
+    : rest;
+  return `+${cc[1]} ${grouped}`;
+}
+
+/** Every distinct phone number on a page, the contactPhone() one first. */
+export function allPhones(socials: { platform: string; url: string }[], links: { url: string }[] = []): string[] {
+  const first = contactPhone(socials, links);
+  const tels = links.map((l) => telPhone(l.url)).filter((n): n is string => !!n);
+  return [...new Set([...(first ? [first] : []), ...tels])];
+}
+
 export function linkCaption(url: string): string {
-  if (url.startsWith("mailto:")) return "Email";
-  if (url.startsWith("tel:")) return "Call";
+  if (url.startsWith("mailto:")) return decodeURIComponent(url.slice(7).split("?")[0]) || "Email";
+  if (url.startsWith("tel:")) {
+    const phone = telPhone(url);
+    return phone ? formatPhone(phone) : "Call";
+  }
   try {
     return new URL(url).hostname.replace(/^www\./, "");
   } catch {

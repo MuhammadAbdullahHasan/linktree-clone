@@ -1,11 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
-import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 import { MdVerified } from "react-icons/md";
 import ActionDock from "@/components/ActionDock";
 import { ContactPills } from "@/components/ContactActions";
 import { APP_NAME } from "@/lib/config";
-import { contactEmail, contactPhone, linkCaption, platformForUrl, SOCIALS_BY_ID, telPhone, whatsappPhone } from "@/lib/socials";
+import { allPhones, contactEmail, contactPhone, linkCaption, platformForUrl, SOCIALS_BY_ID, telPhone, whatsappPhone } from "@/lib/socials";
 import {
   AVATAR_SIZES,
   bestOn,
@@ -157,11 +156,13 @@ export default function ProfilePage({ data, preview = false }: Props) {
   const socials = data.socials.filter((s) => !(s.platform === "whatsapp" && waPhone) && s.platform !== "email");
   // A link tile to the same WhatsApp number would be a third copy of the card pill and dock button.
   // The same goes for a mailto: tile to the address the page already offers as a button, and a
-  // tel: tile to the number the dock's Call button rings (kept when the dock is hidden).
+  // tel: tile to the number the dock's Call button rings (kept when the dock is hidden). A page
+  // with more than one number keeps every number's tile, so each one is on screen.
+  const singlePhone = allPhones(data.socials, data.links).length <= 1;
   const links = data.links.filter(
     (l) =>
       !(waPhone && whatsappPhone([], [{ url: l.url }]) === waPhone) &&
-      !(theme.showDock && phone && telPhone(l.url) === phone) &&
+      !(theme.showDock && singlePhone && phone && telPhone(l.url) === phone) &&
       !(email && l.url === `mailto:${email}`),
   );
 
@@ -348,14 +349,20 @@ export default function ProfilePage({ data, preview = false }: Props) {
           <LinkTiles links={links} theme={theme} radius={radius} preview={preview} headingFont={headingFont} centered={centered} />
         )}
 
+        {/* Branding only: the OneTap wordmark with its ring-dot, not a link. */}
         {theme.showFooter && (
-          <Link
-            href="/"
-            className="mx-auto mt-10 mb-2 text-xs font-semibold tracking-wide"
-            style={{ color: footerInk }}
+          <span
+            role="img"
+            aria-label={APP_NAME}
+            className="mx-auto mt-10 mb-2 inline-flex items-center opacity-80 select-none"
+            style={{ color: footerInk, fontFamily: "var(--font-inter)", fontWeight: 900, fontSize: 19, letterSpacing: "-0.075em", lineHeight: 1 }}
           >
-            {APP_NAME}
-          </Link>
+            <span aria-hidden>onetap</span>
+            <svg aria-hidden viewBox="0 0 20 20" className="ml-[0.08em] size-[0.48em] translate-y-[0.08em]">
+              <circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" strokeWidth="3.2" />
+              <circle cx="10" cy="10" r="3.6" fill="currentColor" />
+            </svg>
+          </span>
         )}
         {!theme.showFooter && <div className="mb-6" />}
       </main>

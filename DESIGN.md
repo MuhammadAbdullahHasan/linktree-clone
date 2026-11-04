@@ -252,7 +252,7 @@ The OneTap wordmark as text, 12px / 600, wide tracking, centred, coloured by `be
 Card and tiles rise into place (from 16px below at 30% opacity, 0.8s, `cubic-bezier(0.16, 1, 0.3, 1)`, staggered 55ms each after 140ms). The dock floats in (from 24px below at 96% scale, 0.7s, after 0.4s). A cover photo settles from 108% scale and 12px blur over 1.2s. All of it runs only under `prefers-reduced-motion: no-preference`; otherwise everything is static.
 
 ### Named Rules
-**The One Control Rule.** Each action has exactly one control. The card pills carry Save contact and WhatsApp. The dock carries only Call, Email, QR code and Share. WhatsApp (when there is a number) and Email are removed from the card's social icons, and a wa.me link tile to the same number is hidden.
+**The One Control Rule.** Each action has exactly one control. The card pills carry Save contact and WhatsApp. The dock carries only Call, Email, QR code and Share. WhatsApp (when there is a number) and Email are removed from the card's social icons, and a wa.me link tile to the same number is hidden. A tel: tile to the number the dock calls is hidden too, unless the page has more than one phone number: then every number keeps its tile, captioned with the number itself, and Save contact saves them all (the first, which Call rings, is preferred).
 
 ## Do's and Don'ts
 

@@ -1,6 +1,6 @@
 import { siteUrl } from "@/lib/config";
 import { getPublicPage } from "@/lib/page-data";
-import { contactEmail, contactPhone } from "@/lib/socials";
+import { allPhones, contactEmail } from "@/lib/socials";
 
 /** Escapes a value for a vCard 3.0 text field. */
 const esc = (value: string) =>
@@ -10,8 +10,9 @@ const esc = (value: string) =>
 export async function GET(_request: Request, { params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const page = (await getPublicPage(decodeURIComponent(username)))?.page;
-  const phone = page ? contactPhone(page.socials, page.links) : null;
-  if (!page || !phone) return new Response("Not found", { status: 404 });
+  // Every number on the page; the first (the one Call rings) is the preferred one.
+  const phones = page ? allPhones(page.socials, page.links) : [];
+  if (!page || !phones.length) return new Response("Not found", { status: 404 });
 
   const name = page.displayName || page.username;
   const email = contactEmail(page.socials);
@@ -20,7 +21,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
     "VERSION:3.0",
     `N:;${esc(name)};;;`,
     `FN:${esc(name)}`,
-    `TEL;TYPE=CELL,VOICE:${phone}`,
+    ...phones.map((phone, i) => `TEL;TYPE=CELL,VOICE${i === 0 ? ",PREF" : ""}:${phone}`),
     email && `EMAIL;TYPE=INTERNET:${esc(email)}`,
     `URL:${siteUrl()}/${page.username}`,
     page.bio && `NOTE:${esc(page.bio)}`,
