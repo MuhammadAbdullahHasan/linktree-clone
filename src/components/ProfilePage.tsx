@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { FaArrowRight } from "react-icons/fa6";
 import { MdVerified } from "react-icons/md";
 import ActionDock from "@/components/ActionDock";
+import BusinessProfile, { businessVars } from "@/components/BusinessProfile";
 import { ContactPills } from "@/components/ContactActions";
 import { APP_NAME } from "@/lib/config";
 import { allPhones, contactEmail, contactPhone, linkCaption, platformForUrl, SOCIALS_BY_ID, telPhone, whatsappPhone } from "@/lib/socials";
@@ -169,6 +170,39 @@ export default function ProfilePage({ data, preview = false }: Props) {
   // The footer sits at the bottom of the page, where a linear gradient has reached its second colour.
   const pageBottom = theme.bgStyle === "gradient" ? theme.bg2 : theme.bg;
   const footerInk = bestOn(pageBottom, [theme.text, theme.bg, theme.bg2, theme.buttonBg, theme.buttonText]);
+
+  const dock = theme.showDock && (
+    <ActionDock
+      username={data.username}
+      name={contactName}
+      phone={phone}
+      // Without WhatsApp, the card's second pill is already Email.
+      email={whatsapp ? email : null}
+      colors={dockColors(theme)}
+    />
+  );
+
+  if (theme.template === "business") {
+    return (
+      <div
+        className={`profile biz relative isolate flex w-full flex-col ${preview ? "min-h-full" : "min-h-dvh"}`}
+        style={{ "--pf-btn": theme.business.accent, "--pf-btn-ink": "#ffffff", ...businessVars(theme.business) } as CSSProperties}
+      >
+        <BusinessProfile
+          data={data}
+          links={links}
+          name={name}
+          contactName={contactName}
+          phone={phone}
+          email={email}
+          whatsapp={whatsapp}
+          preview={preview}
+          dockSpace={theme.showDock}
+        />
+        {dock}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -367,16 +401,7 @@ export default function ProfilePage({ data, preview = false }: Props) {
         {!theme.showFooter && <div className="mb-6" />}
       </main>
 
-      {theme.showDock && (
-        <ActionDock
-          username={data.username}
-          name={contactName}
-          phone={phone}
-          // Without WhatsApp, the card's second pill is already Email.
-          email={whatsapp ? email : null}
-          colors={dockColors(theme)}
-        />
-      )}
+      {dock}
     </div>
   );
 }

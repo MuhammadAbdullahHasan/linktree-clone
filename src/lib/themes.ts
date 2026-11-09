@@ -28,6 +28,73 @@ export const SHAPE_RADIUS = { square: 14, rounded: 28, pill: 34 } as const;
 export const AVATAR_SIZES = { s: 88, m: 112, l: 136 } as const;
 export const TEXT_SCALES = { s: 0.92, m: 1, l: 1.1 } as const;
 
+const short = (max: number) => z.string().trim().max(max);
+
+/**
+ * What the business template shows besides the profile itself. Colours are the template's own
+ * tokens so another company can re-brand it; text fields are optional and hide when empty.
+ */
+export const businessSchema = z.object({
+  bg: hex,
+  /** Link rows. */
+  surface: hex,
+  surfaceHover: hex,
+  /** Quick-action cards. */
+  card: hex,
+  border: hex,
+  /** Tile behind each link row's icon. */
+  iconTile: hex,
+  text: hex,
+  muted: hex,
+  accent: hex,
+  accentLight: hex,
+  legalName: short(60),
+  tagline: short(120),
+  location: short(80),
+  /** The big button's target. A link with the same address keeps its /go/ click tracking. */
+  websiteUrl: short(300),
+  websiteLabel: short(40),
+  servicesLabel: short(40),
+  /** One line per link, "Link title: subtitle". Links without a line show their site as subtitle. */
+  linkSubtitles: short(2000),
+  platformsLabel: short(40),
+  /** Comma-separated chip labels. */
+  platforms: short(400),
+  ctaLabel: short(40),
+  /** Defaults to WhatsApp, then a phone call, then email. */
+  ctaUrl: short(300),
+  qrLabel: short(40),
+  qrText: short(80),
+});
+
+export type BusinessTheme = z.infer<typeof businessSchema>;
+
+export const BUSINESS_DEFAULT: BusinessTheme = {
+  bg: "#0d0d0f",
+  surface: "#151518",
+  surfaceHover: "#1c1c20",
+  card: "#1a1a1e",
+  border: "#2c2c32",
+  iconTile: "#2a1413",
+  text: "#f4f4f6",
+  muted: "#b9b9c2",
+  accent: "#d7261e",
+  accentLight: "#ff5a4f",
+  legalName: "",
+  tagline: "",
+  location: "",
+  websiteUrl: "",
+  websiteLabel: "Visit our website",
+  servicesLabel: "What we do",
+  linkSubtitles: "",
+  platformsLabel: "Platforms we support",
+  platforms: "",
+  ctaLabel: "Speak to an IT specialist",
+  ctaUrl: "",
+  qrLabel: "Tap or scan",
+  qrText: "to open our business profile",
+};
+
 export const themeSchema = z.object({
   // Colours & background
   bgStyle: z.enum(["solid", "gradient", "radial", "mesh", "image"]),
@@ -69,6 +136,10 @@ export const themeSchema = z.object({
   dockBg: hex,
   dockIcon: hex,
   dockAccent: hex,
+  // Page template: "card" is the glossy profile card over link tiles; "business" is the company
+  // page (quick actions, service rows, platforms, QR card) in the colours below.
+  template: z.enum(["card", "business"]),
+  business: businessSchema,
 });
 
 export type Theme = z.infer<typeof themeSchema>;
@@ -98,6 +169,8 @@ const EXTRAS_DEFAULT = {
   showFooter: true,
   showDock: true,
   animations: true,
+  template: "card",
+  business: BUSINESS_DEFAULT,
 } as const;
 
 /** The keys a preset sets when picked. Layout, extras and dock settings carry over. */
@@ -204,6 +277,13 @@ export function resolveTheme(raw: unknown): Theme {
   if (!themeSchema.shape.radius.safeParse(stored.radius).success && oldShape in SHAPE_RADIUS) {
     merged.radius = SHAPE_RADIUS[oldShape];
   }
+  // Fill business fields one by one, so one bad value doesn't drop the rest.
+  const biz = stored.business && typeof stored.business === "object" ? (stored.business as Record<string, unknown>) : {};
+  const business: Record<string, unknown> = { ...BUSINESS_DEFAULT };
+  for (const key of Object.keys(businessSchema.shape) as (keyof BusinessTheme)[]) {
+    if (businessSchema.shape[key].safeParse(biz[key]).success) business[key] = biz[key];
+  }
+  merged.business = business;
   return merged as Theme;
 }
 

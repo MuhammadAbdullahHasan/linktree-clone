@@ -16,7 +16,16 @@ import {
 } from "@/app/dashboard/actions";
 import PhonePreview from "@/components/PhonePreview";
 import { SOCIAL_PLATFORMS, SOCIALS_BY_ID } from "@/lib/socials";
-import { contrast, dockColors, FONTS, PRESET_KEYS, THEME_PRESETS, type FontKey, type Theme } from "@/lib/themes";
+import {
+  contrast,
+  dockColors,
+  FONTS,
+  PRESET_KEYS,
+  THEME_PRESETS,
+  type BusinessTheme,
+  type FontKey,
+  type Theme,
+} from "@/lib/themes";
 import type { Link, PageData, SocialLink } from "@/lib/types";
 import { useAutosave, type SaveStatus } from "@/lib/use-autosave";
 
@@ -244,6 +253,77 @@ function Section({
       </div>
       {children}
     </section>
+  );
+}
+
+const BUSINESS_TEXT: [keyof BusinessTheme, string, string][] = [
+  ["legalName", "Line under the name", "PRIVATE LIMITED"],
+  ["tagline", "Tagline (empty uses the bio)", "Secure. Scalable. Supported."],
+  ["location", "Location", "Karachi, Pakistan"],
+  ["websiteUrl", "Website", "datacare-solutions.com"],
+  ["websiteLabel", "Website button", "Visit our website"],
+  ["servicesLabel", "Links heading", "What we do"],
+  ["platformsLabel", "Chips heading", "Platforms we support"],
+  ["platforms", "Chips, comma-separated", "Oracle, MS SQL Server, MySQL"],
+  ["ctaLabel", "Outlined button", "Speak to an IT specialist"],
+  ["ctaUrl", "Outlined button opens (empty: WhatsApp, call, then email)", "https://wa.me/923001234567"],
+  ["qrLabel", "QR card heading", "Tap or scan"],
+  ["qrText", "QR card text", "to open our business profile"],
+];
+
+const BUSINESS_COLORS: [keyof BusinessTheme, string][] = [
+  ["bg", "Page"],
+  ["surface", "Rows"],
+  ["card", "Cards"],
+  ["border", "Borders"],
+  ["text", "Text"],
+  ["muted", "Muted text"],
+  ["accent", "Accent"],
+  ["accentLight", "Icons & labels"],
+];
+
+/** The business template's text and colours. A link to the website or the outlined button's address keeps its click tracking. */
+function BusinessFields({ theme, setTheme }: { theme: Theme; setTheme: SetTheme }) {
+  const b = theme.business;
+  const update = (key: keyof BusinessTheme) => (value: string) =>
+    setTheme((t) => ({ ...t, business: { ...t.business, [key]: value } }));
+  return (
+    <div className="space-y-4 rounded-2xl border border-neutral-200 p-4">
+      {BUSINESS_TEXT.map(([key, label, placeholder]) => (
+        <div key={key}>
+          <label htmlFor={`biz-${key}`} className="label">{label}</label>
+          <input
+            id={`biz-${key}`}
+            className="input"
+            maxLength={key === "platforms" ? 400 : key.endsWith("Url") ? 300 : 120}
+            placeholder={placeholder}
+            value={b[key]}
+            onChange={(e) => update(key)(e.target.value)}
+          />
+        </div>
+      ))}
+      <div>
+        <label htmlFor="biz-linkSubtitles" className="label">Link subtitles</label>
+        <p className="-mt-1 mb-2 text-xs text-neutral-500">One per line, as Link title: subtitle. Others show their site.</p>
+        <textarea
+          id="biz-linkSubtitles"
+          rows={4}
+          maxLength={2000}
+          className="input"
+          placeholder={"Database Services: Design, tuning and 24/7 DBA support"}
+          value={b.linkSubtitles}
+          onChange={(e) => update("linkSubtitles")(e.target.value)}
+        />
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {BUSINESS_COLORS.map(([key, label]) => (
+          <ColorField key={key} label={label} value={b[key]} onChange={update(key)} />
+        ))}
+      </div>
+      {contrast(b.muted, b.surface) < 4.5 && (
+        <p className="text-xs font-medium text-amber-700">Muted text will be hard to read on the rows. Pick a lighter or darker one.</p>
+      )}
+    </div>
   );
 }
 
@@ -716,6 +796,14 @@ function ThemeTabs({
 
         {tab === "layout" && (
           <>
+            <Choice
+              label="Page style"
+              hint="Business is a company page: quick actions, service rows, platforms and a QR card."
+              value={theme.template}
+              options={[["card", "Standard"], ["business", "Business"]]}
+              onChange={set("template")}
+            />
+            {theme.template === "business" && <BusinessFields theme={theme} setTheme={setTheme} />}
             <Choice
               label="Links"
               value={theme.linkLayout}

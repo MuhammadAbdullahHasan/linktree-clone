@@ -104,3 +104,123 @@ body {
 .profile.pf-static .pf-hero-media {
   animation: none;
 }
+
+/* Business template (theme.template = "business"). Colours come from theme.business as --biz-* variables. */
+.profile.biz {
+  background: var(--biz-bg);
+  color: var(--biz-text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  border-top: 6px solid var(--biz-accent);
+}
+.profile.biz :focus-visible {
+  outline-color: var(--biz-accent-light);
+}
+.biz .biz-heading {
+  font-family: var(--font-grotesk), system-ui, sans-serif;
+}
+.biz .biz-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.biz .biz-section,
+.biz .biz-qr-card .biz-label,
+.biz .biz-icon {
+  color: var(--biz-accent-light);
+}
+.biz .biz-quick {
+  display: flex;
+  height: 64px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--biz-border);
+  border-radius: 14px;
+  background: var(--biz-card);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.biz .biz-primary {
+  display: flex;
+  height: 60px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 22px;
+  border-radius: 16px;
+  background: var(--biz-accent);
+  color: #ffffff;
+  font-family: var(--font-grotesk), system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  transition: filter 0.2s;
+}
+.biz .biz-primary:hover {
+  filter: brightness(1.08);
+}
+.biz .biz-row {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px 0 14px;
+  border: 1px solid var(--biz-border);
+  border-radius: 14px;
+  background: var(--biz-surface);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.biz .biz-quick:hover,
+.biz .biz-row:hover {
+  background: var(--biz-surface-hover);
+  border-color: var(--biz-accent-light);
+}
+.biz .biz-icon-tile {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--biz-icon-tile);
+  color: var(--biz-accent-light);
+}
+.biz .biz-chip {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 14px;
+  border: 1px solid var(--biz-border);
+  border-radius: 9999px;
+  color: var(--biz-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+.biz .biz-outline {
+  display: flex;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--biz-accent-light);
+  border-radius: 16px;
+  color: var(--biz-accent-light);
+  font-family: var(--font-grotesk), system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+.biz .biz-outline:hover {
+  background: color-mix(in oklab, var(--biz-accent) 14%, transparent);
+}
+.biz .biz-qr-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid var(--biz-border);
+  border-radius: 16px;
+  background: var(--biz-surface);
+}
