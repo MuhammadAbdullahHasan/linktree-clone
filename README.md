@@ -1,10 +1,28 @@
 # Linkfolio
 
-A Linktree-style "link in bio" app for a small group of people. Each person signs up with an invite code,
-claims `yoursite.com/username`, adds links and social icons, styles their page, and sees views and clicks.
+A self-hosted "link in bio" and digital business card app. Each person claims `yoursite.com/username`, adds
+links and contact details, styles the page, and sees views and clicks. It powers the profile pages behind
+[OneTap](https://onetap-site-weld.vercel.app) NFC cards, so it's built to open fast on a phone after a tap
+or a QR scan.
 
 Built with Next.js 15 (App Router, TypeScript), Tailwind CSS v4, and SQLite via Drizzle ORM. No outside
 services are needed to run it locally.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FMuhammadAbdullahHasan%2Flinktree-clone&env=INVITE_CODE&envDescription=Code%20people%20need%20to%20sign%20up.%20Leave%20empty%20for%20open%20sign-ups.&project-name=linkfolio)
+
+<img src="docs/business-page.png" alt="A company profile page in the business style: header, Call, Email and Save contact buttons, a website button, service rows, platform chips and a QR card" width="320">
+
+## Features
+
+- **Two page styles.** A profile card with link tiles for people, and a business page for companies
+  (quick actions, services with subtitles, platform chips, a call-to-action and a tap-or-scan QR card).
+- **Contact actions.** Call, WhatsApp, email and a "Save contact" button that downloads a vCard.
+- **Appearance editor with a live preview.** Presets, colours, gradients, background and cover photos,
+  button shapes, fonts and a floating dock.
+- **Analytics.** Page views and per-link clicks (every link goes through `/go/<id>` so clicks are counted).
+- **Managed profiles.** One admin can run pages for customers who never log in, and hand out short-lived
+  edit links.
+- **Small and private.** Your own database, your own auth, no trackers, no third-party accounts needed.
 
 ## Run it locally
 
