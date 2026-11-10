@@ -188,6 +188,16 @@ body {
   background: var(--biz-surface-hover);
   border-color: var(--biz-accent-light);
 }
+.biz .biz-row-static,
+.biz .biz-row-static:hover {
+  cursor: default;
+  background: var(--biz-surface);
+  border-color: var(--biz-border);
+}
+.biz .biz-row-static {
+  min-height: 0;
+  padding-block: 14px;
+}
 .biz .biz-icon-tile {
   display: grid;
   width: 40px;

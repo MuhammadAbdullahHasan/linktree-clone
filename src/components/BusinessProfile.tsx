@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import {
   FaArrowRight,
   FaChevronRight,
+  FaCircleCheck,
   FaCloud,
   FaDatabase,
   FaHeadset,
@@ -59,6 +60,19 @@ function serviceIcon(link: Link) {
   return SERVICE_ICONS.find(([re]) => re.test(link.title))?.[1] ?? platformForUrl(link.url).icon;
 }
 
+/** "Service: description" lines; the description is optional. */
+function parseServices(text: string) {
+  return text
+    .split("\n")
+    .map((line) => {
+      const i = line.indexOf(":");
+      const title = (i > 0 ? line.slice(0, i) : line).trim();
+      const subtitle = i > 0 ? line.slice(i + 1).trim() : "";
+      return { title, subtitle };
+    })
+    .filter((s) => s.title);
+}
+
 /** "Title: subtitle" lines, keyed by lower-cased title. */
 function parseSubtitles(text: string) {
   const map = new Map<string, string>();
@@ -103,6 +117,7 @@ export default function BusinessProfile({ data, links, name, contactName, phone,
   const cta = target(b.ctaUrl || whatsapp || (phone ? `tel:${phone}` : email ? `mailto:${email}` : ""));
   const services = links.filter((l) => l !== website?.link && l !== cta?.link);
   const subtitles = parseSubtitles(b.linkSubtitles);
+  const textServices = parseServices(b.services);
   const platforms = b.platforms
     .split(",")
     .map((p) => p.trim())
@@ -160,12 +175,26 @@ export default function BusinessProfile({ data, links, name, contactName, phone,
         </a>
       )}
 
-      {services.length > 0 && (
+      {(textServices.length > 0 || services.length > 0) && (
         <section className="mt-8" aria-labelledby="biz-services">
           <h2 id="biz-services" className="biz-label biz-section">
             {b.servicesLabel || "What we do"}
           </h2>
           <ul className="mt-3 flex flex-col gap-2.5">
+            {textServices.map((service, i) => {
+              const Icon = SERVICE_ICONS.find(([re]) => re.test(service.title))?.[1] ?? FaCircleCheck;
+              return (
+                <li key={`s${i}`} className="biz-row biz-row-static">
+                  <span aria-hidden className="biz-icon-tile">
+                    <Icon size={18} />
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="biz-heading text-[16px] leading-tight font-semibold">{service.title}</span>
+                    {service.subtitle && <span className="mt-1 text-[13px] leading-snug text-[var(--biz-muted)]">{service.subtitle}</span>}
+                  </span>
+                </li>
+              );
+            })}
             {services.map((link) => {
               const Icon = serviceIcon(link);
               const subtitle = subtitles.get(link.title.trim().toLowerCase()) ?? linkCaption(link.url);

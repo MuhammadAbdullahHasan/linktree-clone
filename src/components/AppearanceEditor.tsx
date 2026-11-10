@@ -303,6 +303,19 @@ function BusinessFields({ theme, setTheme }: { theme: Theme; setTheme: SetTheme 
         </div>
       ))}
       <div>
+        <label htmlFor="biz-services" className="label">Services</label>
+        <p className="-mt-1 mb-2 text-xs text-neutral-500">One per line, as Service: short description. They show as rows without a link.</p>
+        <textarea
+          id="biz-services"
+          rows={5}
+          maxLength={2000}
+          className="input"
+          placeholder={"Database Services: Setup, tuning, backup and recovery\nCloud Services: Migration and managed cloud"}
+          value={b.services}
+          onChange={(e) => update("services")(e.target.value)}
+        />
+      </div>
+      <div>
         <label htmlFor="biz-linkSubtitles" className="label">Link subtitles</label>
         <p className="-mt-1 mb-2 text-xs text-neutral-500">One per line, as Link title: subtitle. Others show their site.</p>
         <textarea

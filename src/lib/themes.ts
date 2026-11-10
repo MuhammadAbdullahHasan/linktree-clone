@@ -55,6 +55,8 @@ export const businessSchema = z.object({
   websiteUrl: short(300),
   websiteLabel: short(40),
   servicesLabel: short(40),
+  /** Services shown as plain rows, one per line as "Service: short description". No link needed. */
+  services: short(2000),
   /** One line per link, "Link title: subtitle". Links without a line show their site as subtitle. */
   linkSubtitles: short(2000),
   platformsLabel: short(40),
@@ -86,6 +88,7 @@ export const BUSINESS_DEFAULT: BusinessTheme = {
   websiteUrl: "",
   websiteLabel: "Visit our website",
   servicesLabel: "What we do",
+  services: "",
   linkSubtitles: "",
   platformsLabel: "Platforms we support",
   platforms: "",
